@@ -1,0 +1,15 @@
+<td>
+
+  <button
+    class="edit"
+    onclick="editTransaction(${t.id})">
+    ✏️ Edit
+  </button>
+
+  <button
+    class="delete"
+    onclick="deleteTransaction(${t.id})">
+    🗑️ Delete
+  </button>
+
+</td>
