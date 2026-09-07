@@ -1,0 +1,16 @@
+const DELETED_STORAGE_KEY = 'expenseTrackerDeletedData';
+
+function loadDeletedTransactions(){
+  return JSON.parse(
+    localStorage.getItem(DELETED_STORAGE_KEY) || '[]'
+  );
+}
+
+function saveDeletedTransactions(list){
+  localStorage.setItem(
+    DELETED_STORAGE_KEY,
+    JSON.stringify(list)
+  );
+}
+
+let deletedTransactions = loadDeletedTransactions();
