@@ -1,0 +1,141 @@
+function renderDeletedHistory(){
+
+  const box =
+    document.getElementById('deletedHistoryList');
+
+  if(!box) return;
+
+  if(deletedTransactions.length === 0){
+
+    box.innerHTML =
+      emptyState('No deleted transactions found.');
+
+    return;
+  }
+
+  const sorted = [...deletedTransactions].sort(
+    (a,b) =>
+      new Date(b.deletedAt || 0) -
+      new Date(a.deletedAt || 0)
+  );
+
+  box.innerHTML = `
+    <div style="
+      display:flex;
+      justify-content:flex-end;
+      margin-bottom:12px;
+    ">
+
+      <button
+        type="button"
+        class="submit-btn expense-mode"
+        style="width:auto;padding:10px 14px;"
+        onclick="clearDeletedHistory()">
+
+        🗑️ Clear All
+
+      </button>
+
+    </div>
+
+    ${sorted.map(t => {
+
+      const deletedTime = t.deletedAt
+        ? new Date(t.deletedAt).toLocaleString('en-IN')
+        : 'Unknown';
+
+      const typeLabel =
+        t.type === 'income'
+          ? 'Income'
+          : 'Expense';
+
+      const icon =
+        CATEGORY_ICONS[t.category] || '📦';
+
+      return `
+
+        <div class="tx-item"
+             style="margin-bottom:10px;">
+
+          <div class="tx-left">
+
+            <div class="tx-icon">
+              ${icon}
+            </div>
+
+            <div>
+
+              <div class="tx-title">
+                ${escapeHTML(t.category)}
+                — ${typeLabel}
+              </div>
+
+              <div class="tx-meta">
+
+                ${escapeHTML(t.date || '')}
+
+                ${
+                  t.note
+                    ? ' • ' + escapeHTML(t.note)
+                    : ''
+                }
+
+                <br>
+
+                Deleted:
+                ${escapeHTML(deletedTime)}
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <div style="text-align:right;">
+
+            <div class="tx-amount ${t.type}">
+              ${t.type === 'income' ? '+' : '-'}
+              ${fmt(t.amount)}
+            </div>
+
+            <div style="
+              display:flex;
+              gap:6px;
+              justify-content:flex-end;
+              margin-top:6px;
+            ">
+
+              <button
+                type="button"
+                class="small-btn"
+                onclick="
+                  restoreDeletedTransaction(${t.id})
+                ">
+
+                ♻️ Restore
+
+              </button>
+
+              <button
+                type="button"
+                class="small-btn danger"
+                onclick="
+                  permanentlyDeleteTransaction(${t.id})
+                ">
+
+                ❌ Delete
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join('')}
+
+  `;
+}
