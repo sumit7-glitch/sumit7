@@ -1,0 +1,19 @@
+<div
+  class="stat-card income clickable-card"
+  onclick="openIncomeHistory()">
+
+  <div class="label">
+    Total Income
+  </div>
+
+  <div
+    class="value"
+    id="dashIncome">
+    ₹0
+  </div>
+
+  <div class="card-hint">
+    Tap to view income ↗
+  </div>
+
+</div>
