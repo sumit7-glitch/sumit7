@@ -1,0 +1,27 @@
+function deleteTransaction(id){
+
+  if(!confirm('Move this transaction to Deleted History?')){
+    return;
+  }
+
+  const tx = transactions.find(t => t.id === id);
+
+  if(!tx) return;
+
+  transactions = transactions.filter(t => t.id !== id);
+
+  deletedTransactions.unshift({
+    ...tx,
+    deletedAt: new Date().toISOString()
+  });
+
+  saveTransactions(transactions);
+  saveDeletedTransactions(deletedTransactions);
+
+  showToast('Transaction moved to Deleted History 🗑️');
+
+  renderDashboard();
+  renderHistory();
+  renderReports();
+  renderDeletedHistory();
+}
