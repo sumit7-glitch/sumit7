@@ -1,0 +1,24 @@
+function calculateTotalIncome() {
+
+  return transactions
+    .filter(tx => tx.type === "income")
+    .reduce(
+      (total, tx) =>
+        total + Number(tx.amount),
+      0
+    );
+
+}
+
+
+function showTotalIncome() {
+
+  const totalIncome =
+    calculateTotalIncome();
+
+  document.getElementById(
+    "dashIncome"
+  ).textContent =
+    formatMoney(totalIncome);
+
+}
