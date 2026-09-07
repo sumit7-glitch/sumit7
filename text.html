@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Expense Tracker App</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+<style>
+
+:root{
+  --primary:#4f46e5;
+  --primary-dark:#3730a3;
+  --income:#16a34a;
+  --expense:#dc2626;
+  --bg:#f3f4f6;
+  --card:#ffffff;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --radius:14px;
+  --shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:'Segoe UI',Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding-bottom:80px;
+}
+
+header{
+  background:linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-dark)
+  );
+
+  color:#fff;
+  padding:18px 20px;
+  text-align:center;
+  box-shadow:var(--shadow);
+
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+header h1{
+  font-size:1.4rem;
+  font-weight:700;
+}
+
+header p{
+  font-size:.8rem;
+  opacity:.85;
+  margin-top:2px;
+}
+
+.container{
+  max-width:900px;
+  margin:0 auto;
+  padding:16px;
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+
+nav.tabs{
+  display:flex;
+  overflow-x:auto;
+  gap:8px;
+  background:var(--card);
+  padding:10px 12px;
+
+  position:sticky;
+  top:66px;
+  z-index:99;
+
+  box-shadow:var(--shadow);
+}
+
+nav.tabs button{
+  flex:0 0 auto;
+  background:transparent;
+  border:none;
+
+  padding:8px 14px;
+  border-radius:20px;
+
+  font-size:.85rem;
+  font-weight:600;
+
+  color:var(--muted);
+  cursor:pointer;
+
+  white-space:nowrap;
+  transition:.2s;
+}
+
+nav.tabs button.active{
+  background:var(--primary);
+  color:#fff;
+}
+
+/* =========================
+   PAGE
+========================= */
+
+.page{
+  display:none;
+  animation:fadeIn .25s ease;
+}
+
+.page.active{
+  display:block;
+}
+
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(6px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* =========================
+   DASHBOARD CARDS
+========================= */
+
+.cards-grid{
+  display:grid;
+
+  grid-template-columns:
+  repeat(auto-fit,minmax(140px,1fr));
+
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.stat-card{
+  background:var(--card);
+  border-radius:var(--radius);
+
+  padding:16px;
+
+  box-shadow:var(--shadow);
+
+  border-left:5px solid var(--primary);
+}
+
+.stat-card.income{
+  border-left-color:var(--income);
+}
+
+.stat-card.expense{
+  border-left-color:var(--expense);
+}
+
+.stat-card.balance{
+  border-left-color:#f59e0b;
+}
+
+.clickable-card{
+  cursor:pointer;
+
+  transition:
+    transform .15s,
+    box-shadow .15s;
+}
+
+.clickable-card:hover{
+  transform:translateY(-2px);
+
+  box-shadow:
+    0 5px 16px rgba(0,0,0,.10);
+}
+
+.clickable-card:active{
+  transform:scale(.98);
+}
+
+.card-hint{
+  font-size:.68rem;
+  color:var(--income);
+  font-weight:600;
+  margin-top:6px;
+}
+
+.stat-card .label{
+  font-size:.75rem;
+  color:var(--muted);
+  font-weight:600;
+
+  text-transform:uppercase;
+}
+
+.stat-card .value{
+  font-size:1.4rem;
+  font-weight:700;
+
+  margin-top:6px;
+}
+
+.stat-card.income .value{
+  color:var(--income);
+}
+
+.stat-card.expense .value{
+  color:var(--expense);
+}
+
+.stat-card.balance .value{
+  color:#d97706;
+}
+
+/* =========================
+   PANELS
+========================= */
+
+.section-title{
+  font-size:1.05rem;
+  font-weight:700;
+  margin:18px 0 10px;
+}
+
+.panel{
+  background:var(--card);
+  border-radius:var(--radius);
+
+  padding:16px;
+
+  box-shadow:var(--shadow);
+
+  margin-bottom:16px;
+}
+
+/* =========================
+   FORM
+========================= */
+
+form .form-row{
+  margin-bottom:12px;
+}
+
+label{
+  display:block;
+
+  font-size:.82rem;
+  font-weight:600;
+
+  color:var(--muted);
+
+  margin-bottom:5px;
+}
+
+input,
+select{
+  width:100%;
+
+  padding:10px 12px;
+
+  border:1px solid var(--border);
+
+  border-radius:10px;
+
+  font-size:.95rem;
+
+  background:#fafafa;
+}
+
+input:focus,
+select:focus{
+  outline:2px solid var(--primary);
+  background:#fff;
+}
+
+/* =========================
+   CATEGORY BUTTONS
+========================= */
+
+.cat-grid{
+  display:grid;
+
+  grid-template-columns:
+  repeat(auto-fill,minmax(90px,1fr));
+
+  gap:8px;
+
+  margin-bottom:12px;
+}
+
+.cat-btn{
+  border:2px solid var(--border);
+
+  background:#fafafa;
+
+  border-radius:12px;
+
+  padding:10px 6px;
+
+  text-align:center;
+
+  cursor:pointer;
+
+  font-size:.8rem;
+
+  font-weight:600;
+
+  transition:.15s;
+}
+
+.cat-btn .emoji{
+  font-size:1.3rem;
+
+  display:block;
+
+  margin-bottom:4px;
+}
+
+.cat-btn.selected{
+  border-color:var(--primary);
+
+  background:#eef2ff;
+
+  color:var(--primary-dark);
+}
+
+/* =========================
+   SUBMIT BUTTON
+========================= */
+
+button.submit-btn{
+  width:100%;
+
+  padding:12px;
+
+  background:var(--primary);
+
+  color:#fff;
+
+  border:none;
+
+  border-radius:10px;
+
+  font-size:1rem;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  margin-top:6px;
+}
+
+button.submit-btn:hover{
+  background:var(--primary-dark);
+}
+
+button.submit-btn.expense-mode{
+  background:var(--expense);
+}
+
+button.submit-btn.expense-mode:hover{
+  background:#b91c1c;
+}
+
+/* =========================
+   TRANSACTION
+========================= */
+
+.tx-item{
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  padding:12px;
+
+  border-bottom:1px solid var(--border);
+
+  gap:10px;
+}
+
+.tx-item:last-child{
+  border-bottom:none;
+}
+
+.tx-left{
+  display:flex;
+
+  align-items:center;
+
+  gap:10px;
+}
+
+.tx-icon{
+  width:40px;
+  height:40px;
+
+  border-radius:50%;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:1.2rem;
+
+  background:#eef2ff;
+
+  flex-shrink:0;
+}
+
+.tx-info .tx-cat{
+  font-weight:700;
+  font-size:.9rem;
+}
+
+.tx-info .tx-date{
+  font-size:.75rem;
+  color:var(--muted);
+}
+
+.tx-info .tx-note{
+  font-size:.75rem;
+  color:var(--muted);
+  font-style:italic;
+}
+
+.tx-right{
+  text-align:right;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+}
+
+.tx-amount{
+  font-weight:700;
+  font-size:.95rem;
+}
+
+.tx-amount.income{
+  color:var(--income);
+}
+
+.tx-amount.expense{
+  color:var(--expense);
+}
+
+.tx-actions button{
+  border:none;
+
+  background:transparent;
+
+  cursor:pointer;
+
+  font-size:1rem;
+
+  padding:4px;
+
+  color:var(--muted);
+}
+
+.tx-actions button:hover{
+  color:var(--primary);
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.empty-state{
+  text-align:center;
+
+  padding:30px 10px;
+
+  color:var(--muted);
+}
+
+.empty-state .emoji{
+  font-size:2.5rem;
+
+  display:block;
+
+  margin-bottom:8px;
+}
+
+/* =========================
+   FILTER
+========================= */
+
+.filter-row{
+  display:flex;
+
+  gap:8px;
+
+  flex-wrap:wrap;
+
+  margin-bottom:14px;
+}
+
+.filter-row select,
+.filter-row input{
+  flex:1;
+
+  min-width:120px;
+}
+
+/* =========================
+   BUDGET
+========================= */
+
+.budget-bar-wrap{
+  background:#e5e7eb;
+
+  border-radius:10px;
+
+  height:16px;
+
+  overflow:hidden;
+
+  margin-top:8px;
+}
+
+.budget-bar{
+  height:100%;
+
+  background:var(--income);
+
+  transition:width .3s;
+}
+
+.budget-bar.warn{
+  background:#f59e0b;
+}
+
+.budget-bar.over{
+  background:var(--expense);
+}
+
+.budget-text{
+  display:flex;
+
+  justify-content:space-between;
+
+  font-size:.8rem;
+
+  color:var(--muted);
+
+  margin-top:6px;
+}
+
+/* =========================
+   CHART
+========================= */
+
+.chart-wrap{
+  position:relative;
+
+  height:280px;
+
+  margin-top:10px;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+  position:fixed;
+
+  bottom:20px;
+
+  left:50%;
+
+  transform:translateX(-50%);
+
+  background:#1f2937;
+
+  color:#fff;
+
+  padding:10px 18px;
+
+  border-radius:30px;
+
+  font-size:.85rem;
+
+  opacity:0;
+
+  pointer-events:none;
+
+  transition:.3s;
+
+  z-index:999;
+}
+
+.toast.show{
+  opacity:1;
+
+  bottom:30px;
+}
+
+/* =========================
+   TWO COLUMN
+========================= */
+
+.two-col{
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:12px;
+}
+
+.small-btn{
+  border:1px solid var(--border);
+
+  background:#fff;
+
+  color:#374151;
+
+  padding:6px 9px;
+
+  border-radius:8px;
+
+  cursor:pointer;
+
+  font-size:.72rem;
+
+  font-weight:700;
+}
+
+.small-btn:hover{
+  transform:translateY(-1px);
+}
+
+.small-btn.danger{
+  color:#b91c1c;
+
+  border-color:#fecaca;
+
+  background:#fff5f5;
+}
+
+@media(max-width:480px){
+
+  .two-col{
+    grid-template-columns:1fr;
+  }
+
+  .tx-item{
+    align-items:flex-start;
+  }
+
+  .tx-right{
+    flex-direction:column;
+    align-items:flex-end;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<header>
+
+  <h1>
+    💰 Expense Tracker
+  </h1>
+
+  <p>
+    Track your income & expenses easily
+  </p>
+
+</header>
+
+
+<!-- =========================
+     NAVIGATION
+========================= -->
+
+<nav class="tabs">
+
+  <button
+    class="tab-btn active"
+    data-page="dashboard">
+    🏠 Dashboard
+  </button>
+
+  <button
+    class="tab-btn"
+    data-page="addIncome">
+    ➕ Add Income
+  </button>
+
+  <button
+    class="tab-btn"
+    data-page="addExpense">
+    💸 Add Expense
+  </button>
+
+  <button
+    class="tab-btn"
+    data-page="reports">
+    📊 Reports
+  </button>
+
+  <button
+    class="tab-btn"
+    data-page="budget">
+    🎯 Budget
+  </button>
+
+  <button
+    class="tab-btn"
+    data-page="history">
+    ⭐ History
+  </button>
+
+  <button
+    class="tab-btn"
+    data-page="deletedHistory">
+    🗑️ Deleted History
+  </button>
+
+</nav>
+
+
+<div class="container">
+
+
+<!-- =========================
+     DASHBOARD
+========================= -->
+
+<div
+  class="page active"
+  id="dashboard">
+
+  <div class="cards-grid">
+
+
+    <!-- TOTAL INCOME -->
+
+    <div
+      class="stat-card income clickable-card"
+      onclick="openIncomeHistory()"
+      title="View all income transactions">
+
+      <div class="label">
+        Total Income
+      </div>
+
+      <div
+        class="value"
+        id="dashIncome">
+        ₹0
+      </div>
+
+      <div class="card-hint">
+        Tap to view income ↗
+      </div>
+
+    </div>
+
+
+    <!-- TOTAL EXPENSE -->
+
+    <div
+      class="stat-card expense">
+
+      <div class="label">
+        Total Expense
+      </div>
+
+      <div
+        class="value"
+        id="dashExpense">
+        ₹0
+      </div>
+
+    </div>
+
+
+    <!-- BALANCE -->
+
+    <div
+      class="stat-card balance">
+
+      <div class="label">
+        Remaining Balance
+      </div>
+
+      <div
+        class="value"
+        id="dashBalance">
+        ₹0
+      </div>
+
+    </div>
+
+
+    <!-- MONTH EXPENSE -->
+
+    <div class="stat-card">
+
+      <div class="label">
+        This Month's Expense
+      </div>
+
+      <div
+        class="value"
+        id="dashMonthExpense">
+        ₹0
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- BUDGET STATUS -->
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      🎯 Budget Status
+
+    </div>
+
+    <div id="dashBudgetInfo">
+
+      <p
+        style="
+          color:var(--muted);
+          font-size:.9rem;
+        ">
+
+        No budget set yet.
+        Go to the Budget tab to set one.
+
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- RECENT TRANSACTIONS -->
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      Recent Transactions
+
+    </div>
+
+    <div id="recentTx"></div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     ADD INCOME
+========================= -->
+
+<div
+  class="page"
+  id="addIncome">
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      ➕ Add Income
+
+    </div>
+
+
+    <form id="incomeForm">
+
+
+      <!-- INCOME SOURCE -->
+
+      <div class="form-row">
+
+        <label>
+          Income Source
+        </label>
+
+        <div
+          class="cat-grid"
+          id="incomeCatGrid">
+
+
+          <div
+            class="cat-btn"
+            data-cat="Salary">
+
+            <span class="emoji">
+              💼
+            </span>
+
+            Salary
+
+          </div>
+
+
+          <div
+            class="cat-btn"
+            data-cat="Pocket Money">
+
+            <span class="emoji">
+              👛
+            </span>
+
+            Pocket Money
+
+          </div>
+
+
+          <div
+            class="cat-btn"
+            data-cat="Business Income">
+
+            <span class="emoji">
+              🏢
+            </span>
+
+            Business
+
+          </div>
+
+
+          <div
+            class="cat-btn"
+            data-cat="Other Income">
+
+            <span class="emoji">
+              ➕
+            </span>
+
+            Other
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- AMOUNT -->
+
+      <div class="form-row">
+
+        <label>
+          Amount (₹)
+        </label>
+
+        <input
+          type="number"
+          id="incomeAmount"
+          placeholder="Enter amount"
+          min="0"
+          step="0.01"
+          required>
+
+      </div>
+
+
+      <!-- DATE -->
+
+      <div class="form-row">
+
+        <label>
+          Date
+        </label>
+
+        <input
+          type="date"
+          id="incomeDate"
+          required>
+
+      </div>
+
+
+      <!-- NOTE -->
+
+      <div class="form-row">
+
+        <label>
+          Note (optional)
+        </label>
+
+        <input
+          type="text"
+          id="incomeNote"
+          placeholder="e.g. September salary">
+
+      </div>
+
+
+      <button
+        type="submit"
+        class="submit-btn">
+
+        Add Income
+
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     ADD EXPENSE
+========================= -->
+
+<div
+  class="page"
+  id="addExpense">
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      💸 Add Expense
+
+    </div>
+
+
+    <form id="expenseForm">
+
+
+      <div class="form-row">
+
+        <label>
+          Category
+        </label>
+
+        <div
+          class="cat-grid"
+          id="expenseCatGrid">
+
+
+          <div
+            class="cat-btn"
+            data-cat="Food">
+
+            <span class="emoji">
+              🍔
+            </span>
+
+            Food
+
+          </div>
+
+
+          <div
+            class="cat-btn"
+            data-cat="Travel">
+
+            <span class="emoji">
+              🚌
+            </span>
+
+            Travel
+
+          </div>
+
+
+          <div
+            class="cat-btn"
+            data-cat="Shopping">
+
+            <span class="emoji">
+              🛍️
+            </span>
+
+            Shopping
+
+          </div>
+
+
+          <div
+            class="cat-btn"
+            data-cat="Bills">
+
+            <span class="emoji">
+              💡
+            </span>
+
+            Bills
+
+          </div>
+
+
+          <div
+            class="cat-btn"
+            data-cat="Education">
+
+            <span class="emoji">
+              📚
+            </span>
+
+            Education
+
+          </div>
+
+
+          <div
+            class="cat-btn"
+            data-cat="Medical">
+
+            <span class="emoji">
+              🏥
+            </span>
+
+            Medical
+
+          </div>
+
+
+          <div
+            class="cat-btn"
+            data-cat="Other">
+
+            <span class="emoji">
+              📦
+            </span>
+
+            Other
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-row">
+
+        <label>
+          Amount (₹)
+        </label>
+
+        <input
+          type="number"
+          id="expenseAmount"
+          placeholder="Enter amount"
+          min="0"
+          step="0.01"
+          required>
+
+      </div>
+
+
+      <div class="form-row">
+
+        <label>
+          Date
+        </label>
+
+        <input
+          type="date"
+          id="expenseDate"
+          required>
+
+      </div>
+
+
+      <div class="form-row">
+
+        <label>
+          Note (optional)
+        </label>
+
+        <input
+          type="text"
+          id="expenseNote"
+          placeholder="e.g. Lunch with friends">
+
+      </div>
+
+
+      <button
+        type="submit"
+        class="submit-btn expense-mode">
+
+        Add Expense
+
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     REPORTS
+========================= -->
+
+<div
+  class="page"
+  id="reports">
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      📊 Expense Reports
+
+    </div>
+
+    <div class="filter-row">
+
+      <select id="reportRange">
+
+        <option value="daily">
+          Today
+        </option>
+
+        <option value="weekly">
+          This Week
+        </option>
+
+        <option
+          value="monthly"
+          selected>
+
+          This Month
+
+        </option>
+
+        <option value="all">
+          All Time
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="chart-wrap">
+
+      <canvas id="categoryChart"></canvas>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      Income vs Expense Trend
+
+    </div>
+
+    <div class="chart-wrap">
+
+      <canvas id="trendChart"></canvas>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      Category-wise Breakdown
+
+    </div>
+
+    <div id="categoryBreakdown"></div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     BUDGET
+========================= -->
+
+<div
+  class="page"
+  id="budget">
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      🎯 Set Monthly Budget
+
+    </div>
+
+
+    <form id="budgetForm">
+
+      <div class="form-row">
+
+        <label>
+          Monthly Budget Amount (₹)
+        </label>
+
+        <input
+          type="number"
+          id="budgetAmount"
+          placeholder="e.g. 10000"
+          min="0"
+          step="0.01"
+          required>
+
+      </div>
+
+
+      <button
+        type="submit"
+        class="submit-btn">
+
+        Save Budget
+
+      </button>
+
+    </form>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      Current Month Budget Usage
+
+    </div>
+
+    <div id="budgetDetail">
+
+      <p
+        style="
+          color:var(--muted);
+          font-size:.9rem;
+        ">
+
+        No budget set yet.
+
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     HISTORY
+========================= -->
+
+<div
+  class="page"
+  id="history">
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      🔍 Search & Filter
+
+    </div>
+
+
+    <div class="filter-row">
+
+      <input
+        type="text"
+        id="searchNote"
+        placeholder="Search by note...">
+
+
+      <select id="filterType">
+
+        <option value="all">
+          All
+        </option>
+
+        <option value="income">
+          Income
+        </option>
+
+        <option value="expense">
+          Expense
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="filter-row">
+
+      <select id="filterCategory">
+
+        <option value="all">
+          All Categories
+        </option>
+
+      </select>
+
+
+      <input
+        type="date"
+        id="filterDate">
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      ⭐ Transaction History
+
+    </div>
+
+    <div id="historyList"></div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     DELETED HISTORY
+========================= -->
+
+<div
+  class="page"
+  id="deletedHistory">
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      🗑️ Deleted Transaction History
+
+    </div>
+
+
+    <p
+      style="
+        color:var(--muted);
+        font-size:.85rem;
+        margin-bottom:12px;
+      ">
+
+      Deleted transactions are kept here.
+      You can restore them or permanently delete them.
+
+    </p>
+
+
+    <div id="deletedHistoryList"></div>
+
+  </div>
+
+</div>
+
+
+</div>
+
+
+<!-- TOAST -->
+
+<div
+  class="toast"
+  id="toast">
+</div>
+
+
+<script>
+
+/* =====================================================
+   DATA LAYER
+===================================================== */
+
+const STORAGE_KEY =
+  'expenseTrackerData';
+
+const BUDGET_KEY =
+  'expenseTrackerBudget';
+
+const DELETED_STORAGE_KEY =
+  'expenseTrackerDeletedData';
+
+
+fu
