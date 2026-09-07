@@ -1,0 +1,281 @@
+<!-- ============================= -->
+<!-- INCOME HISTORY -->
+<!-- ============================= -->
+
+<section id="history" class="page">
+
+  <div class="form-card">
+
+    <h2>📜 Transaction History</h2>
+
+    <div class="filter-row">
+
+      <select id="historyType" onchange="renderHistory()">
+        <option value="all">All Transactions</option>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+
+      <input
+        type="text"
+        id="historySearch"
+        placeholder="🔍 Search..."
+        oninput="renderHistory()"
+      >
+
+    </div>
+
+    <div id="historyList"></div>
+
+  </div>
+
+</section>
+
+
+<script>
+
+// ========================================
+// RENDER INCOME / EXPENSE HISTORY
+// ========================================
+
+function renderHistory() {
+
+  const list = document.getElementById("historyList");
+
+  if (!list) return;
+
+
+  const type =
+    document.getElementById("historyType")?.value || "all";
+
+
+  const search =
+    document.getElementById("historySearch")?.value
+      .toLowerCase()
+      .trim() || "";
+
+
+  let data = [...transactions];
+
+
+  // Filter type
+  if (type !== "all") {
+
+    data = data.filter(
+      item => item.type === type
+    );
+
+  }
+
+
+  // Search
+  if (search) {
+
+    data = data.filter(item => {
+
+      return (
+
+        String(item.category || "")
+          .toLowerCase()
+          .includes(search)
+
+        ||
+
+        String(item.source || "")
+          .toLowerCase()
+          .includes(search)
+
+        ||
+
+        String(item.note || "")
+          .toLowerCase()
+          .includes(search)
+
+      );
+
+    });
+
+  }
+
+
+  // Latest first
+  data.sort(
+    (a, b) =>
+      new Date(b.date) -
+      new Date(a.date)
+  );
+
+
+  if (data.length === 0) {
+
+    list.innerHTML = `
+      <div class="empty-state">
+        <h3>📭 No Transactions</h3>
+        <p>No income or expense found.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+
+  list.innerHTML = data.map(item => {
+
+    const isIncome =
+      item.type === "income";
+
+
+    const sign =
+      isIncome ? "+" : "-";
+
+
+    const icon =
+      isIncome ? "💰" : "💸";
+
+
+    const amount =
+      Number(item.amount || 0)
+        .toLocaleString("en-IN");
+
+
+    return `
+
+      <div class="transaction-row">
+
+        <div class="transaction-icon">
+          ${icon}
+        </div>
+
+        <div class="transaction-info">
+
+          <strong>
+            ${escapeHTML(
+              item.source ||
+              item.category ||
+              "Transaction"
+            )}
+          </strong>
+
+          <small>
+            ${item.date || ""}
+          </small>
+
+          ${
+            item.note
+              ? `<small>${escapeHTML(item.note)}</small>`
+              : ""
+          }
+
+        </div>
+
+        <div
+          class="transaction-amount
+          ${isIncome ? "income-text" : "expense-text"}"
+        >
+          ${sign}₹${amount}
+        </div>
+
+      </div>
+
+    `;
+
+  }).join("");
+
+}
+
+
+// ========================================
+// ESCAPE HTML
+// ========================================
+
+function escapeHTML(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+// ========================================
+// UPDATE DASHBOARD INCOME
+// ========================================
+
+function updateTotalIncome() {
+
+  const total = transactions
+
+    .filter(item =>
+      item.type === "income"
+    )
+
+    .reduce(
+      (sum, item) =>
+        sum + Number(item.amount || 0),
+      0
+    );
+
+
+  const element =
+    document.getElementById("dashIncome");
+
+
+  if (element) {
+
+    element.textContent =
+      "₹" +
+      total.toLocaleString("en-IN");
+
+  }
+
+}
+
+
+// ========================================
+// UPDATE ALL DASHBOARD VALUES
+// ========================================
+
+function updateDashboard() {
+
+  updateTotalIncome();
+
+
+  if (
+    typeof renderDashboard === "function"
+  ) {
+
+    renderDashboard();
+
+  }
+
+
+  if (
+    typeof renderHistory === "function"
+  ) {
+
+    renderHistory();
+
+  }
+
+}
+
+
+// ========================================
+// RUN AFTER PAGE LOAD
+// ========================================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    updateTotalIncome();
+
+    renderHistory();
+
+  }
+);
+
+</script>
