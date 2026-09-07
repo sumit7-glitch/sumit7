@@ -1,0 +1,1265 @@
+<!-- ================= REPORTS ================= -->
+
+<div class="page" id="reports">
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      📊 Expense Reports
+
+    </div>
+
+    <div class="chart-wrap">
+      <canvas id="expenseChart"></canvas>
+    </div>
+
+  </div>
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      📈 Income vs Expense
+
+    </div>
+
+    <div class="chart-wrap">
+      <canvas id="incomeExpenseChart"></canvas>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================= BUDGET ================= -->
+
+<div class="page" id="budget">
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      🎯 Monthly Budget
+
+    </div>
+
+    <form id="budgetForm">
+
+      <div class="form-row">
+
+        <label>
+          Monthly Budget (₹)
+        </label>
+
+        <input
+          type="number"
+          id="budgetAmount"
+          placeholder="Enter monthly budget"
+          min="0"
+          step="0.01"
+          required>
+
+      </div>
+
+      <button
+        type="submit"
+        class="submit-btn">
+
+        Save Budget
+
+      </button>
+
+    </form>
+
+  </div>
+
+  <div
+    class="panel"
+    id="budgetStatus">
+
+  </div>
+
+</div>
+
+
+<!-- ================= HISTORY ================= -->
+
+<div class="page" id="history">
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      ⭐ Transaction History
+
+    </div>
+
+    <div class="filter-row">
+
+      <input
+        type="text"
+        id="historySearch"
+        placeholder="🔍 Search transaction...">
+
+      <select id="historyType">
+
+        <option value="all">
+          All Types
+        </option>
+
+        <option value="income">
+          Income
+        </option>
+
+        <option value="expense">
+          Expense
+        </option>
+
+      </select>
+
+      <select id="historyCategory">
+
+        <option value="all">
+          All Categories
+        </option>
+
+      </select>
+
+    </div>
+
+    <div id="historyList"></div>
+
+  </div>
+
+</div>
+
+
+<!-- ================= DELETED HISTORY ================= -->
+
+<div class="page" id="deletedHistory">
+
+  <div class="panel">
+
+    <div
+      class="section-title"
+      style="margin-top:0;">
+
+      🗑️ Deleted Transaction History
+
+    </div>
+
+    <p
+      style="
+        color:var(--muted);
+        font-size:.82rem;
+        margin-bottom:12px;
+      ">
+
+      Deleted transactions are stored here.
+      You can restore them or permanently delete them.
+
+    </p>
+
+    <div id="deletedHistoryList"></div>
+
+  </div>
+
+</div>
+
+</div>
+
+
+<!-- ================= TOAST ================= -->
+
+<div
+  id="toast"
+  class="toast">
+
+  Saved successfully
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   DATA STORAGE
+===================================================== */
+
+const STORAGE_KEY =
+  'expenseTrackerData';
+
+const BUDGET_KEY =
+  'expenseTrackerBudget';
+
+const DELETED_STORAGE_KEY =
+  'expenseTrackerDeletedData';
+
+
+function loadTransactions(){
+
+  try{
+
+    return JSON.parse(
+      localStorage.getItem(STORAGE_KEY)
+    ) || [];
+
+  }catch(error){
+
+    return [];
+
+  }
+
+}
+
+
+function saveTransactions(){
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(transactions)
+  );
+
+}
+
+
+function loadDeletedTransactions(){
+
+  try{
+
+    return JSON.parse(
+      localStorage.getItem(
+        DELETED_STORAGE_KEY
+      )
+    ) || [];
+
+  }catch(error){
+
+    return [];
+
+  }
+
+}
+
+
+function saveDeletedTransactions(){
+
+  localStorage.setItem(
+    DELETED_STORAGE_KEY,
+    JSON.stringify(deletedTransactions)
+  );
+
+}
+
+
+function loadBudget(){
+
+  return Number(
+    localStorage.getItem(BUDGET_KEY)
+  ) || 0;
+
+}
+
+
+function saveBudget(){
+
+  localStorage.setItem(
+    BUDGET_KEY,
+    budget
+  );
+
+}
+
+
+/* =====================================================
+   MAIN DATA
+===================================================== */
+
+let transactions =
+  loadTransactions();
+
+let deletedTransactions =
+  loadDeletedTransactions();
+
+let budget =
+  loadBudget();
+
+
+let selectedIncomeCategory =
+  'Salary';
+
+let selectedExpenseCategory =
+  'Food';
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+const tabButtons =
+  document.querySelectorAll('.tab-btn');
+
+const pages =
+  document.querySelectorAll('.page');
+
+
+tabButtons.forEach(button => {
+
+  button.addEventListener(
+    'click',
+    () => {
+
+      const page =
+        button.dataset.page;
+
+      tabButtons.forEach(btn => {
+
+        btn.classList.remove('active');
+
+      });
+
+      pages.forEach(p => {
+
+        p.classList.remove('active');
+
+      });
+
+      button.classList.add('active');
+
+      const target =
+        document.getElementById(page);
+
+      if(target){
+
+        target.classList.add('active');
+
+      }
+
+      if(page === 'dashboard'){
+
+        renderDashboard();
+
+      }
+
+      if(page === 'reports'){
+
+        renderReports();
+
+      }
+
+      if(page === 'budget'){
+
+        renderBudget();
+
+      }
+
+      if(page === 'history'){
+
+        renderHistory();
+
+      }
+
+      if(page === 'deletedHistory'){
+
+        renderDeletedHistory();
+
+      }
+
+    }
+  );
+
+});
+
+
+/* =====================================================
+   CATEGORY BUTTONS
+===================================================== */
+
+document
+  .querySelectorAll(
+    '#incomeCatGrid .cat-btn'
+  )
+  .forEach(button => {
+
+    button.addEventListener(
+      'click',
+      () => {
+
+        document
+          .querySelectorAll(
+            '#incomeCatGrid .cat-btn'
+          )
+          .forEach(btn =>
+            btn.classList.remove(
+              'selected'
+            )
+          );
+
+        button.classList.add(
+          'selected'
+        );
+
+        selectedIncomeCategory =
+          button.dataset.cat;
+
+      }
+    );
+
+  });
+
+
+document
+  .querySelectorAll(
+    '#expenseCatGrid .cat-btn'
+  )
+  .forEach(button => {
+
+    button.addEventListener(
+      'click',
+      () => {
+
+        document
+          .querySelectorAll(
+            '#expenseCatGrid .cat-btn'
+          )
+          .forEach(btn =>
+            btn.classList.remove(
+              'selected'
+            )
+          );
+
+        button.classList.add(
+          'selected'
+        );
+
+        selectedExpenseCategory =
+          button.dataset.cat;
+
+      }
+    );
+
+  });
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+function formatMoney(amount){
+
+  return new Intl.NumberFormat(
+    'en-IN',
+    {
+      style:'currency',
+      currency:'INR',
+      maximumFractionDigits:2
+    }
+  ).format(amount);
+
+}
+
+
+function formatDate(date){
+
+  if(!date) return '';
+
+  const d =
+    new Date(date + 'T00:00:00');
+
+  return d.toLocaleDateString(
+    'en-IN',
+    {
+      day:'2-digit',
+      month:'short',
+      year:'numeric'
+    }
+  );
+
+}
+
+
+function getCategoryEmoji(category){
+
+  const icons = {
+
+    Salary:'💼',
+
+    'Pocket Money':'👛',
+
+    'Business Income':'🏢',
+
+    'Other Income':'➕',
+
+    Food:'🍔',
+
+    Travel:'🚌',
+
+    Shopping:'🛍️',
+
+    Bills:'💡',
+
+    Education:'📚',
+
+    Medical:'🏥',
+
+    Other:'📦'
+
+  };
+
+  return icons[category] || '💰';
+
+}
+
+
+function showToast(message){
+
+  const toast =
+    document.getElementById('toast');
+
+  toast.textContent =
+    message;
+
+  toast.classList.add('show');
+
+  setTimeout(() => {
+
+    toast.classList.remove(
+      'show'
+    );
+
+  },2000);
+
+}
+
+
+/* =====================================================
+   ADD INCOME
+===================================================== */
+
+document
+  .getElementById('incomeForm')
+  .addEventListener(
+    'submit',
+    function(e){
+
+      e.preventDefault();
+
+      const amount =
+        Number(
+          document.getElementById(
+            'incomeAmount'
+          ).value
+        );
+
+      const date =
+        document.getElementById(
+          'incomeDate'
+        ).value;
+
+      const note =
+        document.getElementById(
+          'incomeNote'
+        ).value.trim();
+
+
+      if(!amount || amount <= 0){
+
+        showToast(
+          'Please enter valid amount'
+        );
+
+        return;
+
+      }
+
+
+      const transaction = {
+
+        id:
+          Date.now(),
+
+        type:
+          'income',
+
+        category:
+          selectedIncomeCategory,
+
+        amount:
+          amount,
+
+        date:
+          date,
+
+        note:
+          note,
+
+        createdAt:
+          new Date().toISOString()
+
+      };
+
+
+      transactions.unshift(
+        transaction
+      );
+
+      saveTransactions();
+
+      this.reset();
+
+      selectedIncomeCategory =
+        'Salary';
+
+      document
+        .querySelectorAll(
+          '#incomeCatGrid .cat-btn'
+        )
+        .forEach(btn =>
+          btn.classList.remove(
+            'selected'
+          )
+        );
+
+      document
+        .querySelector(
+          '#incomeCatGrid .cat-btn'
+        )
+        .classList.add(
+          'selected'
+        );
+
+      showToast(
+        'Income added successfully'
+      );
+
+      renderDashboard();
+
+    }
+  );
+
+
+/* =====================================================
+   ADD EXPENSE
+===================================================== */
+
+document
+  .getElementById('expenseForm')
+  .addEventListener(
+    'submit',
+    function(e){
+
+      e.preventDefault();
+
+      const amount =
+        Number(
+          document.getElementById(
+            'expenseAmount'
+          ).value
+        );
+
+      const date =
+        document.getElementById(
+          'expenseDate'
+        ).value;
+
+      const note =
+        document.getElementById(
+          'expenseNote'
+        ).value.trim();
+
+
+      if(!amount || amount <= 0){
+
+        showToast(
+          'Please enter valid amount'
+        );
+
+        return;
+
+      }
+
+
+      const transaction = {
+
+        id:
+          Date.now(),
+
+        type:
+          'expense',
+
+        category:
+          selectedExpenseCategory,
+
+        amount:
+          amount,
+
+        date:
+          date,
+
+        note:
+          note,
+
+        createdAt:
+          new Date().toISOString()
+
+      };
+
+
+      transactions.unshift(
+        transaction
+      );
+
+      saveTransactions();
+
+      this.reset();
+
+      selectedExpenseCategory =
+        'Food';
+
+      document
+        .querySelectorAll(
+          '#expenseCatGrid .cat-btn'
+        )
+        .forEach(btn =>
+          btn.classList.remove(
+            'selected'
+          )
+        );
+
+      document
+        .querySelector(
+          '#expenseCatGrid .cat-btn'
+        )
+        .classList.add(
+          'selected'
+        );
+
+      showToast(
+        'Expense added successfully'
+      );
+
+      renderDashboard();
+
+      checkBudgetWarning();
+
+    }
+  );
+
+
+/* =====================================================
+   EDIT TRANSACTION
+===================================================== */
+
+function editTransaction(id){
+
+  const tx =
+    transactions.find(
+      t => t.id === id
+    );
+
+  if(!tx) return;
+
+
+  const newAmount =
+    prompt(
+      'Enter new amount:',
+      tx.amount
+    );
+
+
+  if(newAmount === null)
+    return;
+
+
+  const amount =
+    Number(newAmount);
+
+
+  if(!amount || amount <= 0){
+
+    showToast(
+      'Invalid amount'
+    );
+
+    return;
+
+  }
+
+
+  const newNote =
+    prompt(
+      'Enter note:',
+      tx.note || ''
+    );
+
+
+  tx.amount =
+    amount;
+
+  tx.note =
+    newNote || '';
+
+  saveTransactions();
+
+  renderDashboard();
+
+  renderHistory();
+
+  showToast(
+    'Transaction updated'
+  );
+
+}
+
+
+/* =====================================================
+   DELETE TRANSACTION
+   MOVE TO DELETED HISTORY
+===================================================== */
+
+function deleteTransaction(id){
+
+  const index =
+    transactions.findIndex(
+      t => t.id === id
+    );
+
+
+  if(index === -1)
+    return;
+
+
+  const tx =
+    transactions[index];
+
+
+  const confirmed =
+    confirm(
+      'Delete this transaction?\n\n' +
+      'It will be moved to Deleted History.'
+    );
+
+
+  if(!confirmed)
+    return;
+
+
+  transactions.splice(
+    index,
+    1
+  );
+
+
+  tx.deletedAt =
+    new Date().toISOString();
+
+
+  deletedTransactions.unshift(
+    tx
+  );
+
+
+  saveTransactions();
+
+  saveDeletedTransactions();
+
+
+  renderDashboard();
+
+  renderHistory();
+
+  renderDeletedHistory();
+
+
+  showToast(
+    'Moved to Deleted History'
+  );
+
+}
+
+
+/* =====================================================
+   RESTORE DELETED TRANSACTION
+===================================================== */
+
+function restoreDeletedTransaction(id){
+
+  const index =
+    deletedTransactions.findIndex(
+      t => t.id === id
+    );
+
+
+  if(index === -1)
+    return;
+
+
+  const tx =
+    deletedTransactions[index];
+
+
+  delete tx.deletedAt;
+
+
+  transactions.unshift(
+    tx
+  );
+
+
+  deletedTransactions.splice(
+    index,
+    1
+  );
+
+
+  saveTransactions();
+
+  saveDeletedTransactions();
+
+
+  renderDashboard();
+
+  renderHistory();
+
+  renderDeletedHistory();
+
+
+  showToast(
+    'Transaction restored'
+  );
+
+}
+
+
+/* =====================================================
+   PERMANENT DELETE
+===================================================== */
+
+function permanentlyDeleteTransaction(id){
+
+  const confirmed =
+    confirm(
+      'Permanently delete this transaction?\n\n' +
+      'This action cannot be undone.'
+    );
+
+
+  if(!confirmed)
+    return;
+
+
+  deletedTransactions =
+    deletedTransactions.filter(
+      t => t.id !== id
+    );
+
+
+  saveDeletedTransactions();
+
+  renderDeletedHistory();
+
+
+  showToast(
+    'Permanently deleted'
+  );
+
+}
+
+
+/* =====================================================
+   CLEAR DELETED HISTORY
+===================================================== */
+
+function clearDeletedHistory(){
+
+  if(
+    deletedTransactions.length === 0
+  ){
+
+    showToast(
+      'Deleted History is empty'
+    );
+
+    return;
+
+  }
+
+
+  const confirmed =
+    confirm(
+      'Permanently delete ALL deleted transactions?'
+    );
+
+
+  if(!confirmed)
+    return;
+
+
+  deletedTransactions = [];
+
+  saveDeletedTransactions();
+
+  renderDeletedHistory();
+
+
+  showToast(
+    'Deleted History cleared'
+  );
+
+}
+
+
+/* =====================================================
+   RENDER DELETED HISTORY
+===================================================== */
+
+function renderDeletedHistory(){
+
+  const box =
+    document.getElementById(
+      'deletedHistoryList'
+    );
+
+
+  if(!box)
+    return;
+
+
+  if(
+    deletedTransactions.length === 0
+  ){
+
+    box.innerHTML = `
+      <div class="empty-state">
+
+        <span class="emoji">
+          🗑️
+        </span>
+
+        No deleted transactions.
+
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  let html = `
+
+    <div
+      style="
+        display:flex;
+        justify-content:flex-end;
+        margin-bottom:12px;
+      ">
+
+      <button
+        class="small-btn danger"
+        onclick="clearDeletedHistory()">
+
+        🗑️ Clear All
+
+      </button>
+
+    </div>
+
+  `;
+
+
+  deletedTransactions.forEach(
+    tx => {
+
+      html += `
+
+        <div class="tx-item">
+
+          <div class="tx-left">
+
+            <div class="tx-icon">
+
+              ${getCategoryEmoji(
+                tx.category
+              )}
+
+            </div>
+
+            <div class="tx-info">
+
+              <div class="tx-cat">
+
+                ${escapeHTML(
+                  tx.category
+                )}
+
+              </div>
+
+              <div class="tx-date">
+
+                ${formatDate(tx.date)}
+
+              </div>
+
+              ${
+                tx.note
+                  ? `
+                    <div class="tx-note">
+                      ${escapeHTML(
+                        tx.note
+                      )}
+                    </div>
+                  `
+                  : ''
+              }
+
+              <div
+                style="
+                  font-size:.7rem;
+                  color:#dc2626;
+                  margin-top:3px;
+                ">
+
+                Deleted:
+                ${
+                  tx.deletedAt
+                    ? new Date(
+                        tx.deletedAt
+                      ).toLocaleString(
+                        'en-IN'
+                      )
+                    : ''
+                }
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="tx-right">
+
+            <div
+              class="tx-amount ${
+                tx.type === 'income'
+                  ? 'income'
+                  : 'expense'
+              }">
+
+              ${
+                tx.type === 'income'
+                  ? '+'
+                  : '-'
+              }
+
+              ${formatMoney(
+                tx.amount
+              )}
+
+            </div>
+
+
+            <div class="tx-actions">
+
+              <button
+                title="Restore"
+                onclick="
+                  restoreDeletedTransaction(
+                    ${tx.id}
+                  )
+                ">
+
+                ♻️
+
+              </button>
+
+              <button
+                title="Permanently Delete"
+                onclick="
+                  permanentlyDeleteTransaction(
+                    ${tx.id}
+                  )
+                ">
+
+                ❌
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }
+  );
+
+
+  box.innerHTML =
+    html;
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(value){
+
+  return String(value ?? '')
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+    .replace(
+      /</g,
+      '&lt;'
+    )
+    .replace(
+      />/g,
+      '&gt;'
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+
+}
+
+
+/* =====================================================
+   WINDOW EXPORTS
+===================================================== */
+
+window.editTransaction =
+  editTransaction;
+
+window.deleteTransaction =
+  deleteTransaction;
+
+window.restoreDeletedTransaction =
+  restoreDeletedTransaction;
+
+window.permanentlyDeleteTransaction =
+  permanentlyDeleteTransaction;
+
+window.clearDeletedHistory =
+  clearDeletedHistory;
