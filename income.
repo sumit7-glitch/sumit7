@@ -1,0 +1,42 @@
+function openIncomeHistory() {
+
+  // બધા tabs inactive
+  document
+    .querySelectorAll(".tab-btn")
+    .forEach(btn => {
+      btn.classList.remove("active");
+    });
+
+  // બધા pages hide
+  document
+    .querySelectorAll(".page")
+    .forEach(page => {
+      page.classList.remove("active");
+    });
+
+  // History tab active
+  const historyTab =
+    document.querySelector(
+      '[data-page="history"]'
+    );
+
+  historyTab.classList.add("active");
+
+  // History page open
+  document
+    .getElementById("history")
+    .classList.add("active");
+
+  // Income filter select
+  const type =
+    document.getElementById(
+      "historyType"
+    );
+
+  if (type) {
+    type.value = "income";
+  }
+
+  // History refresh
+  renderHistory();
+}
