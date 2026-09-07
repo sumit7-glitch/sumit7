@@ -1,0 +1,31 @@
+function restoreDeletedTransaction(id){
+
+  const index =
+    deletedTransactions.findIndex(t => t.id === id);
+
+  if(index === -1) return;
+
+  const tx = {
+    ...deletedTransactions[index]
+  };
+
+  delete tx.deletedAt;
+
+  if(transactions.some(t => t.id === tx.id)){
+    tx.id = Date.now();
+  }
+
+  transactions.push(tx);
+
+  deletedTransactions.splice(index, 1);
+
+  saveTransactions(transactions);
+  saveDeletedTransactions(deletedTransactions);
+
+  showToast('Transaction restored ♻️');
+
+  renderDashboard();
+  renderHistory();
+  renderReports();
+  renderDeletedHistory();
+}
