@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Tracker - History</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    background:#f1f3f6;
+    color:#172033;
+}
+
+/* HEADER */
+.header{
+    background:linear-gradient(135deg,#5142e5,#4030b9);
+    color:white;
+    text-align:center;
+    padding:34px 15px;
+}
+
+.header h1{
+    font-size:38px;
+    margin-bottom:5px;
+}
+
+.header p{
+    font-size:21px;
+    opacity:.95;
+}
+
+/* NAVIGATION */
+.navbar{
+    background:white;
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    padding:15px 10px;
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
+    overflow-x:auto;
+}
+
+.navbar button{
+    border:0;
+    background:white;
+    padding:13px 24px;
+    border-radius:30px;
+    font-size:21px;
+    font-weight:bold;
+    color:#60646c;
+    white-space:nowrap;
+    cursor:pointer;
+}
+
+.navbar button.active{
+    background:#5142e5;
+    color:white;
+}
+
+/* MAIN */
+.container{
+    max-width:1000px;
+    margin:30px auto;
+    padding:0 20px;
+}
+
+/* SEARCH BOX */
+.card{
+    background:white;
+    border-radius:28px;
+    padding:30px;
+    margin-bottom:30px;
+    box-shadow:0 5px 20px rgba(0,0,0,.07);
+}
+
+.card h2{
+    font-size:31px;
+    margin-bottom:24px;
+}
+
+.filters{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+}
+
+.filters input,
+.filters select{
+    width:100%;
+    padding:18px 22px;
+    border:2px solid #e4e4e8;
+    border-radius:18px;
+    font-size:20px;
+    outline:none;
+    background:#fff;
+}
+
+.filters input:focus,
+.filters select:focus{
+    border-color:#5142e5;
+}
+
+/* TRANSACTION */
+.transaction-card{
+    background:white;
+    border-radius:28px;
+    padding:30px;
+    box-shadow:0 5px 20px rgba(0,0,0,.07);
+}
+
+.transaction-card h2{
+    font-size:31px;
+    margin-bottom:25px;
+}
+
+.transaction{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    padding:20px 0;
+    border-bottom:2px solid #eeeeee;
+}
+
+.transaction:last-child{
+    border-bottom:none;
+}
+
+.icon{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    background:#f0f3ff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:42px;
+    flex-shrink:0;
+}
+
+.details{
+    flex:1;
+}
+
+.details h3{
+    font-size:25px;
+    margin-bottom:5px;
+}
+
+.date{
+    color:#737782;
+    font-size:20px;
+}
+
+.note{
+    color:#70747c;
+    font-size:20px;
+    font-style:italic;
+}
+
+.amount{
+    font-size:29px;
+    font-weight:bold;
+    min-width:130px;
+    text-align:right;
+}
+
+.income{
+    color:#159447;
+}
+
+.expense{
+    color:#e63946;
+}
+
+.actions{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-left:15px;
+}
+
+.actions button{
+    border:none;
+    background:transparent;
+    font-size:30px;
+    cursor:pointer;
+    padding:3px;
+}
+
+.actions button:hover{
+    transform:scale(1.15);
+}
+
+/* EMPTY */
+.empty{
+    text-align:center;
+    padding:50px 10px;
+    color:#777;
+    font-size:21px;
+    display:none;
+}
+
+/* MOBILE */
+@media(max-width:650px){
+
+    .header{
+        padding:28px 10px;
+    }
+
+    .header h1{
+        font-size:34px;
+    }
+
+    .header p{
+        font-size:19px;
+    }
+
+    .navbar{
+        justify-content:flex-start;
+    }
+
+    .navbar button{
+        font-size:18px;
+        padding:12px 18px;
+    }
+
+    .container{
+        margin:20px auto;
+        padding:0 14px;
+    }
+
+    .card,
+    .transaction-card{
+        padding:22px;
+        border-radius:25px;
+    }
+
+    .card h2,
+    .transaction-card h2{
+        font-size:27px;
+    }
+
+    .filters{
+        grid-template-columns:1fr 1fr;
+        gap:12px;
+    }
+
+    .filters input,
+    .filters select{
+        padding:15px 13px;
+        font-size:17px;
+    }
+
+    .transaction{
+        gap:12px;
+        align-items:center;
+    }
+
+    .icon{
+        width:65px;
+        height:65px;
+        font-size:32px;
+    }
+
+    .details h3{
+        font-size:21px;
+    }
+
+    .date,
+    .note{
+        font-size:17px;
+    }
+
+    .amount{
+        min-width:auto;
+        font-size:23px;
+    }
+
+    .actions{
+        margin-left:0;
+    }
+
+    .actions button{
+        font-size:25px;
+    }
+}
+
+@media(max-width:430px){
+
+    .filters{
+        grid-template-columns:1fr;
+    }
+
+    .transaction{
+        display:grid;
+        grid-template-columns:60px 1fr auto;
+    }
+
+    .icon{
+        width:60px;
+        height:60px;
+    }
+
+    .amount{
+        grid-column:2 / 3;
+        text-align:left;
+    }
+
+    .actions{
+        grid-column:3;
+        grid-row:1 / span 2;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <h1>💰 Expense Tracker</h1>
+    <p>Track your income & expenses easily</p>
+</header>
+
+<!-- NAVIGATION -->
+<nav class="navbar">
+    <button onclick="goTo('expense')">💸 Expense</button>
+    <button onclick="goTo('reports')">📊 Reports</button>
+    <button onclick="goTo('budget')">🎯 Budget</button>
+    <button class="active">⭐ History</button>
+</nav>
+
+<main class="container">
+
+<!-- SEARCH & FILTER -->
+<section class="card">
+
+    <h2>🔍 Search & Filter</h2>
+
+    <div class="filters">
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by note..."
+            oninput="filterTransactions()"
+        >
+
+        <select id="typeFilter" onchange="filterTransactions()">
+            <option value="all">All Transactions</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+        </select>
+
+        <select id="categoryFilter" onchange="filterTransactions()">
+            <option value="all">All Categories</option>
+        </select>
+
+        <select id="dateFilter" onchange="filterTransactions()">
+            <option value="all">All Dates</option>
+            <option value="today">Today</option>
+            <option value="week">Last 7 Days</option>
+            <option value="month">This Month</option>
+        </select>
+
+    </div>
+</section>
+
+
+<!-- HISTORY -->
+<section class="transaction-card">
+
+    <h2>⭐ Transaction History</h2>
+
+    <div id="transactionList"></div>
+
+    <div class="empty" id="emptyMessage">
+        🔍 No transactions found.
+    </div>
+
+</section>
+
+</main>
+
+
+<script>
+
+/* =====================================
+   DEFAULT DATA
+===================================== */
+
+const defaultTransactions = [
+
+    {
+        id: 1,
+        title: "Business Income",
+        category: "Business",
+        amount: 2000,
+        type: "income",
+        date: "2026-09-08",
+        note: "16000",
+        icon: "🏢"
+    },
+
+    {
+        id: 2,
+        title: "Pocket Money",
+        category: "Personal",
+        amount: 500,
+        type: "income",
+        date: "2026-09-08",
+        note: "5000",
+        icon: "👛"
+    },
+
+    {
+        id: 3,
+        title: "Food",
+        category: "Food",
+        amount: 250,
+        type: "expense",
+        date: "2026-09-07",
+        note: "Lunch",
+        icon: "🍔"
+    },
+
+    {
+        id: 4,
+        title: "Travel",
+        category: "Travel",
+        amount: 300,
+        type: "expense",
+        date: "2026-09-06",
+        note: "Bus ticket",
+        icon: "🚌"
+    }
+
+];
+
+
+/* =====================================
+   LOAD LOCAL STORAGE
+===================================== */
+
+let transactions =
+    JSON.parse(localStorage.getItem("expenseTransactions"))
+    || defaultTransactions;
+
+
+/* =====================================
+   SAVE DATA
+===================================== */
+
+function saveTransactions(){
+
+    localStorage.setItem(
+        "expenseTransactions",
+        JSON.stringify(transactions)
+    );
+
+}
+
+
+/* =====================================
+   FORMAT DATE
+===================================== */
+
+function formatDate(date){
+
+    const d = new Date(date + "T00:00:00");
+
+    return d.toISOString().split("T")[0];
+
+}
+
+
+/* =====================================
+   DISPLAY TRANSACTIONS
+===================================== */
+
+function displayTransactions(data){
+
+    const list =
+        document.getElementById("transactionList");
+
+    const empty =
+        document.getElementById("emptyMessage");
+
+    list.innerHTML = "";
+
+    if(data.length === 0){
+
+        empty.style.display = "block";
+        return;
+
+    }
+
+    empty.style.display = "none";
+
+
+    data.forEach(transaction => {
+
+        const item =
+        document.createElement("div");
+
+        item.className = "transaction";
+
+
+        const sign =
+            transaction.type === "income"
+            ? "+"
+            : "-";
+
+
+        item.innerHTML = `
+
+            <div class="icon">
+                ${transaction.icon || "💰"}
+            </div>
+
+            <div class="details">
+
+                <h3>
+                    ${escapeHTML(transaction.title)}
+                </h3>
+
+                <div class="date">
+                    ${formatDate(transaction.date)}
+                </div>
+
+                <div class="note">
+                    ${escapeHTML(transaction.note || "")}
+                </div>
+
+            </div>
+
+            <div class="amount
+                ${transaction.type === "income"
+                    ? "income"
+                    : "expense"}">
+
+                ${sign} ₹${Number(transaction.amount).toLocaleString("en-IN")}
+
+            </div>
+
+            <div class="actions">
+
+                <button
+                    title="Edit"
+                    onclick="editTransaction(${transaction.id})">
+                    ✏️
+                </button>
+
+                <button
+                    title="Delete"
+                    onclick="deleteTransaction(${transaction.id})">
+                    🗑️
+                </button>
+
+            </div>
+
+        `;
+
+        list.appendChild(item);
+
+    });
+
+}
+
+
+/* =====================================
+   ESCAPE HTML
+===================================== */
+
+function escapeHTML(text){
+
+    const div = document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+}
+
+
+/* =====================================
+   SEARCH & FILTER
+===================================== */
+
+function filterTransactions(){
+
+    const search =
+        document
+        .getElementById("searchInput")
+        .value
+        .toLowerCase()
+        .trim();
+
+
+    const type =
+        document
+        .getElementById("typeFilter")
+        .value;
+
+
+    const category =
+        document
+        .getElementById("categoryFilter")
+        .value;
+
+
+    const date =
+        document
+        .getElementById("dateFilter")
+        .value;
+
+
+    const today =
+        new Date();
+
+
+    const filtered =
+        transactions.filter(transaction => {
+
+            const searchMatch =
+                transaction.title
+                .toLowerCase()
+                .includes(search)
+
+                ||
+
+                (transaction.note || "")
+                .toLowerCase()
+                .includes(search);
+
+
+            const typeMatch =
+                type === "all"
+                ||
+                transaction.type === type;
+
+
+            const categoryMatch =
+                category === "all"
+                ||
+                transaction.category === category;
+
+
+            let dateMatch = true;
+
+
+            const transactionDate =
+                new Date(
+                    transaction.date + "T00:00:00"
+                );
+
+
+            if(date === "today"){
+
+                dateMatch =
+                    transaction.date ===
+                    today.toISOString().split("T")[0];
+
+            }
+
+
+            if(date === "week"){
+
+                const sevenDaysAgo =
+                    new Date();
+
+                sevenDaysAgo.setDate(
+                    today.getDate() - 7
+                );
+
+                dateMatch =
+                    transactionDate >= sevenDaysAgo;
+
+            }
+
+
+            if(date === "month"){
+
+                dateMatch =
+                    transactionDate.getMonth()
+                    === today.getMonth()
+
+                    &&
+
+                    transactionDate.getFullYear()
+                    === today.getFullYear();
+
+            }
+
+
+            return (
+                searchMatch
+                &&
+                typeMatch
+                &&
+                categoryMatch
+                &&
+                dateMatch
+            );
+
+        });
+
+
+    displayTransactions(filtered);
+
+}
+
+
+/* =====================================
+   LOAD CATEGORIES
+===================================== */
+
+function loadCategories(){
+
+    const select =
+        document.getElementById("categoryFilter");
+
+    const categories =
+        [...new Set(
+            transactions
+            .map(t => t.category)
+            .filter(Boolean)
+        )];
+
+
+    select.innerHTML =
+        `<option value="all">
+            All Categories
+        </option>`;
+
+
+    categories.forEach(category => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = category;
+
+        option.textContent = category;
+
+        select.appendChild(option);
+
+    });
+
+}
+
+
+/* =====================================
+   DELETE
+===================================== */
+
+function deleteTransaction(id){
+
+    const transaction =
+        transactions.find(t => t.id === id);
+
+    if(!transaction) return;
+
+
+    const confirmDelete =
+        confirm(
+            "Are you sure you want to delete this transaction?"
+        );
+
+
+    if(!confirmDelete) return;
+
+
+    transactions =
+        transactions.filter(
+            t => t.id !== id
+        );
+
+
+    saveTransactions();
+
+    loadCategories();
+
+    filterTransactions();
+
+}
+
+
+/* =====================================
+   EDIT
+===================================== */
+
+function editTransaction(id){
+
+    const transaction =
+        transactions.find(t => t.id === id);
+
+    if(!transaction) return;
+
+
+    const newTitle =
+        prompt(
+            "Enter transaction title:",
+            transaction.title
+        );
+
+
+    if(newTitle === null) return;
+
+
+    const newAmount =
+        prompt(
+            "Enter amount:",
+            transaction.amount
+        );
+
+
+    if(newAmount === null) return;
+
+
+    const amount =
+        Number(newAmount);
+
+
+    if(
+        newTitle.trim() === ""
+        ||
+        isNaN(amount)
+        ||
+        amount <= 0
+    ){
+
+        alert("Please enter valid data.");
+
+        return;
+
+    }
+
+
+    transaction.title =
+        newTitle.trim();
+
+    transaction.amount =
+        amount;
+
+
+    saveTransactions();
+
+    filterTransactions();
+
+}
+
+
+/* =====================================
+   NAVIGATION
+===================================== */
+
+function goTo(page){
+
+    if(page === "expense"){
+
+        alert("Expense page");
+
+    }
+
+    else if(page === "reports"){
+
+        alert("Reports page");
+
+    }
+
+    else if(page === "budget"){
+
+        alert("Budget page");
+
+    }
+
+}
+
+
+/* =====================================
+   INITIALIZE
+===================================== */
+
+loadCategories();
+
+displayTransactions(transactions);
+
+</script>
+
+</body>
+          </html>
