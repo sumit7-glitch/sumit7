@@ -1,0 +1,57 @@
+<section id="budget" class="page">
+  <div class="page-header">
+    <h2>💰 Budget</h2>
+    <p>Set your monthly expense budget</p>
+  </div>
+
+  <div class="budget-card">
+    <h3>Set Monthly Budget</h3>
+
+    <form id="budgetForm">
+      <label>Monthly Budget Amount</label>
+
+      <div class="amount-input">
+        <span>₹</span>
+        <input
+          type="number"
+          id="budgetAmount"
+          placeholder="Enter budget"
+          min="0"
+          step="0.01"
+          required
+        >
+      </div>
+
+      <button type="submit" class="primary-btn">
+        💾 Save Budget
+      </button>
+    </form>
+  </div>
+
+  <div class="budget-status">
+    <div>
+      <span>Monthly Budget</span>
+      <strong id="budgetTotal">₹0</strong>
+    </div>
+
+    <div>
+      <span>This Month Expense</span>
+      <strong id="budgetSpent">₹0</strong>
+    </div>
+
+    <div>
+      <span>Remaining</span>
+      <strong id="budgetRemaining">₹0</strong>
+    </div>
+
+    <div class="progress-box">
+      <div class="progress-bar">
+        <div id="budgetProgress"></div>
+      </div>
+
+      <p id="budgetMessage">
+        Set your monthly budget to start tracking.
+      </p>
+    </div>
+  </div>
+</section>
