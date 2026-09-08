@@ -1,0 +1,424 @@
+<!-- 📜 HISTORY SECTION -->
+<section id="historySection" class="page-section">
+  <div class="section-header">
+    <div>
+      <h2>📜 History</h2>
+      <p>તમામ Income અને Expense transactions</p>
+    </div>
+
+    <button onclick="clearHistory()" class="danger-btn">
+      🗑️ Clear History
+    </button>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="history-tools">
+    <input
+      type="text"
+      id="historySearch"
+      placeholder="🔍 Search transaction..."
+      oninput="loadHistory()"
+    />
+
+    <select id="historyType" onchange="loadHistory()">
+      <option value="all">All</option>
+      <option value="income">Income</option>
+      <option value="expense">Expense</option>
+    </select>
+
+    <select id="historySort" onchange="loadHistory()">
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+      <option value="high">Amount High → Low</option>
+      <option value="low">Amount Low → High</option>
+    </select>
+  </div>
+
+  <!-- History Table -->
+  <div class="history-card">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Amount</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="historyTableBody">
+        <!-- Data JavaScript થી આવશે -->
+      </tbody>
+    </table>
+
+    <div id="noHistory" class="no-history">
+      📭 No transaction history found
+    </div>
+  </div>
+</section>
+
+<style>
+/* HISTORY */
+.page-section {
+  padding: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.section-header p {
+  margin: 5px 0 0;
+  color: #777;
+}
+
+.history-tools {
+  display: grid;
+  grid-template-columns: 1fr 180px 180px;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.history-tools input,
+.history-tools select {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+  font-size: 14px;
+  background: white;
+}
+
+.history-tools input:focus,
+.history-tools select:focus {
+  border-color: #667eea;
+}
+
+.history-card {
+  background: white;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  overflow-x: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.history-table th {
+  background: #f5f6fa;
+  padding: 14px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.history-table td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.income-badge {
+  background: #dff7e8;
+  color: #16803c;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.expense-badge {
+  background: #ffe2e2;
+  color: #d62828;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.income-amount {
+  color: #16803c;
+  font-weight: bold;
+}
+
+.expense-amount {
+  color: #d62828;
+  font-weight: bold;
+}
+
+.delete-history-btn {
+  border: none;
+  background: #ffe5e5;
+  color: #d62828;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.delete-history-btn:hover {
+  background: #ffcccc;
+}
+
+.danger-btn {
+  border: none;
+  background: #dc3545;
+  color: white;
+  padding: 11px 16px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.no-history {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+  display: none;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .history-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header h2 {
+    font-size: 23px;
+  }
+
+  .history-card {
+    padding: 8px;
+  }
+}
+</style>
+
+<script>
+/* =========================================
+   📜 HISTORY SYSTEM
+========================================= */
+
+function getTransactions() {
+  return JSON.parse(localStorage.getItem("transactions")) || [];
+}
+
+function saveTransactions(data) {
+  localStorage.setItem("transactions", JSON.stringify(data));
+}
+
+/* Load History */
+function loadHistory() {
+
+  let transactions = getTransactions();
+
+  const search =
+    document.getElementById("historySearch")?.value
+      .toLowerCase() || "";
+
+  const type =
+    document.getElementById("historyType")?.value || "all";
+
+  const sort =
+    document.getElementById("historySort")?.value || "newest";
+
+  /* Search */
+  transactions = transactions.filter(item => {
+
+    const text = `
+      ${item.category || ""}
+      ${item.description || ""}
+      ${item.type || ""}
+      ${item.date || ""}
+    `.toLowerCase();
+
+    const searchMatch = text.includes(search);
+
+    const typeMatch =
+      type === "all" || item.type === type;
+
+    return searchMatch && typeMatch;
+  });
+
+  /* Sort */
+  transactions.sort((a, b) => {
+
+    if (sort === "newest") {
+      return new Date(b.date) - new Date(a.date);
+    }
+
+    if (sort === "oldest") {
+      return new Date(a.date) - new Date(b.date);
+    }
+
+    if (sort === "high") {
+      return Number(b.amount) - Number(a.amount);
+    }
+
+    if (sort === "low") {
+      return Number(a.amount) - Number(b.amount);
+    }
+
+  });
+
+  const tbody =
+    document.getElementById("historyTableBody");
+
+  const noHistory =
+    document.getElementById("noHistory");
+
+  tbody.innerHTML = "";
+
+  if (transactions.length === 0) {
+    noHistory.style.display = "block";
+    return;
+  }
+
+  noHistory.style.display = "none";
+
+  transactions.forEach((item, index) => {
+
+    const isIncome = item.type === "income";
+
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${index + 1}</td>
+
+      <td>
+        ${formatDate(item.date)}
+      </td>
+
+      <td>
+        <span class="${isIncome ? "income-badge" : "expense-badge"}">
+          ${isIncome ? "⬆️ Income" : "⬇️ Expense"}
+        </span>
+      </td>
+
+      <td>
+        ${escapeHTML(item.category || "Other")}
+      </td>
+
+      <td>
+        ${escapeHTML(item.description || "-")}
+      </td>
+
+      <td class="${isIncome ? "income-amount" : "expense-amount"}">
+        ${isIncome ? "+" : "-"} ₹${Number(item.amount || 0).toLocaleString("en-IN")}
+      </td>
+
+      <td>
+        <button
+          class="delete-history-btn"
+          onclick="deleteHistory(${item.id})">
+          🗑️
+        </button>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+
+
+/* Delete One Transaction */
+function deleteHistory(id) {
+
+  if (!confirm("Delete this transaction?")) {
+    return;
+  }
+
+  let transactions = getTransactions();
+
+  transactions =
+    transactions.filter(item => item.id != id);
+
+  saveTransactions(transactions);
+
+  loadHistory();
+
+  /* Dashboard update હોય તો */
+  if (typeof updateDashboard === "function") {
+    updateDashboard();
+  }
+}
+
+
+/* Clear All History */
+function clearHistory() {
+
+  const transactions = getTransactions();
+
+  if (transactions.length === 0) {
+    alert("History is already empty.");
+    return;
+  }
+
+  if (!confirm("Are you sure you want to delete ALL history?")) {
+    return;
+  }
+
+  localStorage.removeItem("transactions");
+
+  loadHistory();
+
+  if (typeof updateDashboard === "function") {
+    updateDashboard();
+  }
+
+  alert("All history deleted successfully.");
+}
+
+
+/* Date Format */
+function formatDate(date) {
+
+  if (!date) return "-";
+
+  const d = new Date(date);
+
+  if (isNaN(d.getTime())) {
+    return date;
+  }
+
+  return d.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+
+/* Security */
+function escapeHTML(value) {
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+/* Page Open થાય ત્યારે */
+document.addEventListener("DOMContentLoaded", function () {
+  loadHistory();
+});
+  </script>
