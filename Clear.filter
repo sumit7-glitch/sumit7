@@ -1,0 +1,9 @@
+function clearFilters() {
+
+  document.getElementById("searchNote").value = "";
+  document.getElementById("filterType").value = "all";
+  document.getElementById("filterCategory").value = "all";
+  document.getElementById("filterDate").value = "";
+
+  renderHistory();
+}
