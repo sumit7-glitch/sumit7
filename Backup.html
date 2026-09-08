@@ -1,0 +1,69 @@
+<!-- 📥 Backup / Export -->
+<div style="margin:20px 0; display:flex; gap:10px; flex-wrap:wrap;">
+    <button onclick="exportData()"
+        style="padding:10px 16px; border:0; border-radius:8px; cursor:pointer;">
+        📥 Export Backup
+    </button>
+
+    <button onclick="document.getElementById('importFile').click()"
+        style="padding:10px 16px; border:0; border-radius:8px; cursor:pointer;">
+        📤 Import Backup
+    </button>
+
+    <input type="file" id="importFile" accept=".json"
+        style="display:none;" onchange="importData(event)">
+</div>
+
+<script>
+function exportData() {
+    const data = localStorage.getItem("transactions");
+
+    if (!data) {
+        alert("❌ Backup માટે કોઈ data મળ્યો નથી.");
+        return;
+    }
+
+    const blob = new Blob([data], {
+        type: "application/json"
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "income-tracker-backup.json";
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+    alert("✅ Backup successfully download થયો.");
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        try {
+            JSON.parse(e.target.result);
+
+            localStorage.setItem(
+                "transactions",
+                e.target.result
+            );
+
+            alert("✅ Backup successfully restore થયો.");
+
+            location.reload();
+
+        } catch (error) {
+            alert("❌ Invalid backup file!");
+        }
+    };
+
+    reader.readAsText(file);
+}
+      </script>
