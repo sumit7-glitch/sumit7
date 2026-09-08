@@ -1,0 +1,36 @@
+<div class="search-filter-box">
+
+  <input
+    type="text"
+    id="searchNote"
+    placeholder="🔍 Search transaction..."
+  >
+
+  <select id="filterType">
+    <option value="all">All Type</option>
+    <option value="income">Income</option>
+    <option value="expense">Expense</option>
+  </select>
+
+  <select id="filterCategory">
+    <option value="all">All Categories</option>
+    <option value="Salary">Salary</option>
+    <option value="Pocket Money">Pocket Money</option>
+    <option value="Business Income">Business Income</option>
+    <option value="Other Income">Other Income</option>
+    <option value="Food">Food</option>
+    <option value="Travel">Travel</option>
+    <option value="Shopping">Shopping</option>
+    <option value="Bills">Bills</option>
+    <option value="Education">Education</option>
+    <option value="Medical">Medical</option>
+    <option value="Other">Other</option>
+  </select>
+
+  <input type="date" id="filterDate">
+
+  <button type="button" onclick="clearFilters()">
+    ✖ Clear
+  </button>
+
+</div>
