@@ -1,0 +1,38 @@
+.search-filter-box {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  gap: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.search-filter-box input,
+.search-filter-box select,
+.search-filter-box button {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.search-filter-box button {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.search-filter-box button:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 700px) {
+  .search-filter-box {
+    grid-template-columns: 1fr;
+  }
+}
