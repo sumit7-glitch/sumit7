@@ -1,0 +1,24 @@
+document.addEventListener("DOMContentLoaded", function () {
+
+  const searchInput = document.getElementById("searchNote");
+  const filterType = document.getElementById("filterType");
+  const filterCategory = document.getElementById("filterCategory");
+  const filterDate = document.getElementById("filterDate");
+
+  if (searchInput) {
+    searchInput.addEventListener("input", renderHistory);
+  }
+
+  if (filterType) {
+    filterType.addEventListener("change", renderHistory);
+  }
+
+  if (filterCategory) {
+    filterCategory.addEventListener("change", renderHistory);
+  }
+
+  if (filterDate) {
+    filterDate.addEventListener("change", renderHistory);
+  }
+
+});
