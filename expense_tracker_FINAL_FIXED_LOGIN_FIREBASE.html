@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0b1020">
+<title>Expense Tracker Pro</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#121827;--muted:#697386;--line:#e7eaf1;--primary:#6757e8;--primary2:#8b5cf6;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--shadow:0 14px 40px #18213b12}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit}button{cursor:pointer}
+.app{min-height:100vh;display:flex}.sidebar{position:fixed;inset:0 auto 0 0;width:255px;background:linear-gradient(180deg,#0b1020,#161d35);color:#fff;padding:22px 15px;z-index:20}
+.brand{display:flex;align-items:center;gap:12px;padding:5px 10px 24px}.brand-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#7c3aed,#4f46e5);font-size:22px;box-shadow:0 8px 25px #6d28d955}.brand b{font-size:18px}.brand small{display:block;color:#9aa4bd;margin-top:3px}
+.nav{display:grid;gap:6px}.nav button{border:0;background:transparent;color:#aeb7ca;text-align:left;padding:12px 13px;border-radius:11px;transition:.2s}.nav button:hover,.nav button.active{background:#ffffff12;color:#fff}.nav button.active{box-shadow:inset 3px 0 var(--primary);background:linear-gradient(90deg,#6d5ce722,transparent)}
+.side-bottom{position:absolute;left:15px;right:15px;bottom:20px;border-top:1px solid #ffffff12;padding-top:15px;color:#8892aa;font-size:12px}
+.main{margin-left:255px;width:calc(100% - 255px);padding:26px 30px 40px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}.title h1{font-size:28px;margin:0}.title p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.status{padding:8px 12px;border-radius:30px;background:#fff;border:1px solid var(--line);font-size:12px}.status.ok{color:#047857;background:#ecfdf5}.status.bad{color:#b45309;background:#fffbeb}
+.page{display:none}.page.active{display:block}.hero{padding:25px;border-radius:20px;background:linear-gradient(135deg,#171d39,#302768);color:#fff;margin-bottom:20px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:230px;height:230px;border-radius:50%;background:#8b5cf633;right:-70px;top:-100px}.hero h2{margin:0 0 7px;font-size:23px}.hero p{margin:0;color:#c8cbe0;font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.stat{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:18px;box-shadow:var(--shadow);position:relative;overflow:hidden}.stat:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--primary)}.stat.green:before{background:var(--green)}.stat.red:before{background:var(--red)}.stat.amber:before{background:var(--amber)}.stat .lbl{font-size:12px;color:var(--muted)}.stat .num{font-size:24px;font-weight:800;margin-top:8px}.stat .sub{font-size:11px;color:var(--muted);margin-top:7px}
+.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px;margin-top:18px}.panel{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:var(--shadow)}.panel h3{margin:0 0 15px;font-size:16px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.form{display:grid;gap:15px;max-width:760px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px;background:#fbfcff;outline:none}.field input:focus,.field select:focus{border-color:#8175ed;box-shadow:0 0 0 3px #6757e812}.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.cat{border:1px solid var(--line);background:#fff;border-radius:11px;padding:12px 8px;text-align:center;font-size:12px}.cat span{display:block;font-size:20px;margin-bottom:5px}.cat.selected{border-color:var(--primary);background:#f3f1ff;box-shadow:0 0 0 2px #6757e820}
+.primary{border:0;color:#fff;padding:12px 17px;border-radius:11px;background:linear-gradient(135deg,var(--primary),var(--primary2));font-weight:700;box-shadow:0 8px 20px #6757e833}.secondary{border:1px solid var(--line);background:#fff;padding:9px 12px;border-radius:9px}.danger{border:1px solid #fecaca;background:#fff5f5;color:#b91c1c;padding:8px 11px;border-radius:9px}
+table{width:100%;border-collapse:collapse}th,td{padding:12px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:12px}th{color:var(--muted);font-size:11px}td.amount{font-weight:800}.income-text{color:#059669}.expense-text{color:#dc2626}.table-wrap{overflow:auto}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:9px;margin:14px 0}.filters input,.filters select{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff}
+.progress{height:12px;background:#edf0f6;border-radius:30px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#6757e8,#8b5cf6);border-radius:30px}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.quick button{padding:14px;border:1px solid var(--line);background:#fff;border-radius:12px;text-align:left}.quick b{display:block}.quick small{color:var(--muted)}
+.empty{text-align:center;padding:30px;color:var(--muted)}.toast{position:fixed;right:25px;bottom:25px;background:#111827;color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 10px 30px #0003;opacity:0;transform:translateY(15px);transition:.25s;z-index:100}.toast.show{opacity:1;transform:none}
+.modal{position:fixed;inset:0;background:#05081799;display:none;place-items:center;z-index:90;padding:20px}.modal.show{display:grid}.modal-box{width:min(500px,100%);background:#fff;border-radius:18px;padding:22px;box-shadow:0 30px 80px #0004}.modal-head{display:flex;justify-content:space-between}.close{border:0;background:#f1f3f8;border-radius:50%;width:32px;height:32px}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{background:#f8f9fd;border:1px solid var(--line);border-radius:12px;padding:13px}.mini small{color:var(--muted)}.mini b{display:block;font-size:18px;margin-top:5px}
+@media(max-width:1050px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+@media(max-width:700px){.sidebar{position:static;width:100%;height:auto}.app{display:block}.side-bottom{display:none}.nav{grid-template-columns:repeat(2,1fr)}.main{margin:0;width:100%;padding:17px}.top{align-items:flex-start;gap:10px}.title h1{font-size:22px}.cards{grid-template-columns:1fr 1fr}.cat-grid{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr}.quick{grid-template-columns:1fr}.hero{padding:20px}}
+
+.auth-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0b1020,#302768);display:grid;place-items:center;padding:20px;z-index:1000}
+.auth-box{width:min(430px,100%);background:#fff;border-radius:22px;padding:28px;box-shadow:0 30px 90px #0006}
+.auth-logo{width:58px;height:58px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;font-size:28px;margin-bottom:14px}
+.auth-box h2{margin:0 0 6px}.auth-box p{color:#697386;font-size:13px;margin:0 0 20px}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f1f3f8;padding:5px;border-radius:11px;margin-bottom:18px}
+.auth-tabs button{border:0;background:transparent;padding:10px;border-radius:8px;font-weight:700;color:#697386}
+.auth-tabs button.active{background:#fff;color:#6757e8;box-shadow:0 2px 8px #00000010}
+.auth-form{display:grid;gap:12px}.auth-form label{font-size:12px;font-weight:700}.auth-form input{width:100%;border:1px solid #e7eaf1;border-radius:11px;padding:12px;background:#fbfcff;outline:none}
+.auth-form input:focus{border-color:#8175ed;box-shadow:0 0 0 3px #6757e812}
+.auth-error{display:none;background:#fff1f2;color:#be123c;border:1px solid #fecdd3;padding:10px;border-radius:10px;font-size:12px}
+.auth-note{font-size:11px;color:#8a93a5;text-align:center;margin-top:14px}
+.userbar{display:flex;align-items:center;gap:8px}
+.logout{border:1px solid var(--line);background:#fff;padding:8px 11px;border-radius:9px;color:#b91c1c;font-size:12px}
+
+</style>
+</head>
+<body>
+
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">₹</div>
+    <h2>Expense Pro</h2>
+    <p id="authSubtitle">Login to your personal expense account.</p>
+    <div class="auth-tabs" style="grid-template-columns:1fr 1fr">
+      <button id="loginTab" class="active" type="button" onclick="showAuth('login')">Login</button>
+      <button id="signupTab" type="button" onclick="showAuth('signup')">Create Account</button>
+    </div>
+    <form id="authForm" class="auth-form">
+      <div>
+        <label>EMAIL</label>
+        <input id="authEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+      </div>
+      <div>
+        <label>PASSWORD</label>
+        <input id="authPassword" type="password" minlength="6" autocomplete="current-password" required placeholder="Minimum 6 characters">
+      </div>
+      <div id="authConfirmWrap" style="display:none">
+        <label>CONFIRM PASSWORD</label>
+        <input id="authConfirm" type="password" minlength="6" autocomplete="new-password" placeholder="Enter password again">
+      </div>
+      <div id="authError" class="auth-error"></div>
+      <button id="authSubmit" class="primary" type="submit">Login</button>
+    </form>
+    <div class="auth-note">Each email account gets its own private Firebase data.</div>
+  </div>
+</div>
+<div class="app">
+<aside class="sidebar">
+ <div class="brand"><div class="brand-icon">₹</div><div><b>Expense Pro</b><small>Smart money manager</small></div></div>
+ <div class="nav">
+  <button class="active" onclick="page('dashboard',this)">⌂ &nbsp; Dashboard</button>
+  <button onclick="page('income',this)">＋ &nbsp; Add Income</button>
+  <button onclick="page('expense',this)">− &nbsp; Add Expense</button>
+  <button onclick="page('reports',this)">◒ &nbsp; Analytics</button>
+  <button onclick="page('budget',this)">◎ &nbsp; Budget</button>
+  <button onclick="page('history',this)">☷ &nbsp; Transactions</button>
+  <button onclick="page('deleted',this)">♲ &nbsp; Recycle Bin</button>
+  <button onclick="page('tools',this)">✦ &nbsp; Tools</button>
+ </div>
+ <div class="side-bottom">☁ Cloud sync enabled<br>Local backup enabled</div>
+</aside>
+
+<main class="main">
+ <div class="top"><div class="title"><h1 id="pageTitle">Dashboard</h1><p id="subtitle">Your personal finance command center</p></div><div class="userbar"><span id="userEmail" class="status" style="display:none"></span><button class="logout" onclick="logout()">Logout</button><div id="status" class="status">● Connecting...</div></div></div>
+
+ <section id="dashboard" class="page active">
+  <div class="hero"><h2>Good day 👋</h2><p>Stay on top of your money with a clean, simple and powerful dashboard.</p></div>
+  <div class="cards">
+   <div class="stat green"><div class="lbl">TOTAL INCOME</div><div id="incomeTotal" class="num">₹0</div><div class="sub">All recorded income</div></div>
+   <div class="stat red"><div class="lbl">TOTAL EXPENSE</div><div id="expenseTotal" class="num">₹0</div><div class="sub">All recorded expenses</div></div>
+   <div class="stat"><div class="lbl">AVAILABLE BALANCE</div><div id="balanceTotal" class="num">₹0</div><div class="sub">Income minus expenses</div></div>
+   <div class="stat amber"><div class="lbl">THIS MONTH</div><div id="monthExpense" class="num">₹0</div><div class="sub">Current month expense</div></div>
+  </div>
+  <div class="grid">
+   <div class="panel"><div class="panel-head"><h3>Recent Transactions</h3><button class="secondary" onclick="page('history',document.querySelectorAll('.nav button')[5])">View all</button></div><div id="recent"></div></div>
+   <div class="panel"><h3>Budget Overview</h3><div id="budgetDash"></div><div style="margin-top:18px"><h3>Expense Categories</h3><canvas id="dashChart"></canvas></div></div>
+  </div>
+  <div class="panel" style="margin-top:18px"><h3>Quick Actions</h3><div class="quick"><button onclick="page('income',document.querySelectorAll('.nav button')[1])">＋ <b>Add Income</b><small>Record money received</small></button><button onclick="page('expense',document.querySelectorAll('.nav button')[2])">− <b>Add Expense</b><small>Record money spent</small></button><button onclick="exportBackup()">↓ <b>Export Backup</b><small>Save your data as JSON</small></button></div></div>
+ </section>
+
+ <section id="income" class="page"><div class="panel"><h3>＋ Add Income</h3><form class="form" id="incomeForm"><div class="field"><label>INCOME SOURCE</label><div class="cat-grid" id="incomeCats"></div></div><div class="field"><label>AMOUNT (₹)</label><input id="incomeAmount" type="number" min="0" step="0.01" required placeholder="0.00"></div><div class="field"><label>DATE</label><input id="incomeDate" type="date" required></div><div class="field"><label>NOTE</label><input id="incomeNote" maxlength="200" placeholder="e.g. Monthly salary"></div><button class="primary">Save Income</button></form></div></section>
+
+ <section id="expense" class="page"><div class="panel"><h3>− Add Expense</h3><form class="form" id="expenseForm"><div class="field"><label>EXPENSE CATEGORY</label><div class="cat-grid" id="expenseCats"></div></div><div class="field"><label>AMOUNT (₹)</label><input id="expenseAmount" type="number" min="0" step="0.01" required placeholder="0.00"></div><div class="field"><label>DATE</label><input id="expenseDate" type="date" required></div><div class="field"><label>NOTE</label><input id="expenseNote" maxlength="200" placeholder="e.g. Grocery shopping"></div><button class="primary">Save Expense</button></form></div></section>
+
+ <section id="reports" class="page"><div class="cards"><div class="stat green"><div class="lbl">INCOME</div><div id="rIncome" class="num">₹0</div></div><div class="stat red"><div class="lbl">EXPENSE</div><div id="rExpense" class="num">₹0</div></div><div class="stat"><div class="lbl">SAVING RATE</div><div id="savingRate" class="num">0%</div></div><div class="stat amber"><div class="lbl">TRANSACTIONS</div><div id="txCount" class="num">0</div></div></div><div class="grid"><div class="panel"><h3>Income vs Expense</h3><canvas id="barChart"></canvas></div><div class="panel"><h3>Category Breakdown</h3><canvas id="pieChart"></canvas></div></div></section>
+
+ <section id="budget" class="page"><div class="panel"><h3>◎ Monthly Budget</h3><form class="form" id="budgetForm"><div class="field"><label>MONTHLY LIMIT (₹)</label><input id="budgetInput" type="number" min="0" step="0.01" placeholder="Enter budget"></div><button class="primary">Save Budget</button></form><div id="budgetPage" style="margin-top:25px"></div></div></section>
+
+ <section id="history" class="page"><div class="panel"><div class="panel-head"><h3>☷ Transactions</h3><div><button class="secondary" onclick="exportBackup()">↓ Export</button><button class="secondary" onclick="document.getElementById('import').click()">↑ Import</button><input id="import" hidden type="file" accept=".json" onchange="importBackup(event)"></div></div><div class="filters"><input id="search" placeholder="Search category, note..." oninput="renderHistory()"><select id="filterType" onchange="renderHistory()"><option value="all">All types</option><option value="income">Income</option><option value="expense">Expense</option></select><select id="filterCat" onchange="renderHistory()"><option value="all">All categories</option></select><input id="filterDate" type="date" onchange="renderHistory()"></div><div class="table-wrap"><table><thead><tr><th>DATE</th><th>TYPE</th><th>CATEGORY</th><th>AMOUNT</th><th>NOTE</th><th>ACTION</th></tr></thead><tbody id="historyBody"></tbody></table></div></div></section>
+
+ <section id="deleted" class="page"><div class="panel"><div class="panel-head"><h3>♲ Recycle Bin</h3><button class="danger" onclick="emptyBin()">Empty Bin</button></div><div class="table-wrap"><table><thead><tr><th>DELETED</th><th>DATE</th><th>TYPE</th><th>CATEGORY</th><th>AMOUNT</th><th>ACTION</th></tr></thead><tbody id="deletedBody"></tbody></table></div></div></section>
+
+ <section id="tools" class="page"><div class="grid"><div class="panel"><h3>✦ Smart Tools</h3><div class="quick"><button onclick="showSummary()">📋 <b>Financial Summary</b><small>Quick overview</small></button><button onclick="exportBackup()">↓ <b>Backup Data</b><small>Download JSON</small></button><button onclick="document.getElementById('import').click()">↑ <b>Restore Backup</b><small>Import JSON</small></button></div></div><div class="panel"><h3>☁ Data & Sync</h3><p class="small">Your browser keeps a local backup. When Firebase is connected, transactions are also stored under your private anonymous user account in Firestore.</p><button class="secondary" onclick="location.reload()">↻ Reconnect Firebase</button></div></div></section>
+
+ <footer style="text-align:center;color:#8a93a5;font-size:11px;margin-top:28px">Expense Pro • Premium UI • Firebase + Local Backup</footer>
+</main>
+</div>
+
+<div id="toast" class="toast"></div>
+<div id="modal" class="modal"><div class="modal-box"><div class="modal-head"><h3 id="modalTitle">Summary</h3><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
+
+<script>
+const firebaseConfig={apiKey:"AIzaSyBEDa6ghd_-avEjwMMrNHwqwrA0AW3tvpk",authDomain:"expense-tracker-df236.firebaseapp.com",projectId:"expense-tracker-df236",storageBucket:"expense-tracker-df236.firebasestorage.app",messagingSenderId:"638498108094",appId:"1:638498108094:web:36e58d6bd4e08a737fe4ef",measurementId:"G-28835XPTLT"};
+let firebaseReady=false,auth,db;
+try{
+  firebase.initializeApp(firebaseConfig);
+  auth=firebase.auth();
+  db=firebase.firestore();
+  firebaseReady=true;
+}catch(e){
+  console.error("Firebase initialization failed:",e);
+  const box=document.getElementById("authError");
+  if(box){box.textContent="Firebase configuration error. Check the Firebase Web App API key.";box.style.display="block";}
+}
+let user=null,tx=[],deleted=[],budget=0,dashChart,barChart,pieChart,editId=null;
+const KEY="expenseProTx",DKEY="expenseProDeleted",BKEY="expenseProBudget";
+const incomeCats=[["Salary","💼"],["Pocket Money","👛"],["Business Income","🏢"],["Freelance","💻"],["Investment","📈"],["Other Income","＋"]];
+const expenseCats=[["Food","🍔"],["Travel","🚌"],["Shopping","🛍️"],["Bills","💡"],["Education","📚"],["Medical","🏥"],["Rent","🏠"],["Entertainment","🎬"],["Other","📦"]];
+const $=id=>document.getElementById(id),today=()=>new Date().toISOString().slice(0,10),money=n=>"₹"+Number(n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+function esc(s){return String(s??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[x]))}
+function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2200)}
+function localSave(){localStorage.setItem(KEY,JSON.stringify(tx));localStorage.setItem(DKEY,JSON.stringify(deleted));localStorage.setItem(BKEY,budget)}
+function localLoad(){try{tx=JSON.parse(localStorage.getItem(KEY)||"[]")}catch{tx=[]}try{deleted=JSON.parse(localStorage.getItem(DKEY)||"[]")}catch{deleted=[]}budget=Number(localStorage.getItem(BKEY)||0)}
+function setStatus(ok,text){$("status").className="status "+(ok?"ok":"bad");$("status").textContent=(ok?"● ":"● ")+text}
+function page(id,btn){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");$("pageTitle").textContent={dashboard:"Dashboard",income:"Add Income",expense:"Add Expense",reports:"Analytics",budget:"Budget",history:"Transactions",deleted:"Recycle Bin",tools:"Tools"}[id];if(id==="reports")renderReports()}
+function makeCats(id,list){$(id).innerHTML=list.map(x=>`<button type="button" class="cat" data-cat="${esc(x[0])}"><span>${x[1]}</span>${esc(x[0])}</button>`).join("");$(id).querySelectorAll(".cat").forEach(b=>b.onclick=()=>{ $(id).querySelectorAll(".cat").forEach(x=>x.classList.remove("selected"));b.classList.add("selected")})}
+function selected(id){return $(id).querySelector(".cat.selected")?.dataset.cat||""}
+makeCats("incomeCats",incomeCats);makeCats("expenseCats",expenseCats);$("incomeDate").value=today();$("expenseDate").value=today();
+async function refs(){let b=db.collection("users").doc(user.uid);return{tx:b.collection("transactions"),del:b.collection("deleted"),settings:b.collection("settings").doc("main")}}
+let authMode="login";
+function showAuth(mode){
+  authMode=mode;
+  $("loginTab").classList.toggle("active",mode==="login");
+  $("signupTab").classList.toggle("active",mode==="signup");
+  $("authConfirmWrap").style.display=mode==="signup"?"block":"none";
+  $("authSubmit").textContent=mode==="signup"?"Create Account":"Login";
+  $("authSubtitle").textContent=mode==="signup"
+    ?"Create your account. Your data will be saved separately in Firebase."
+    :"Enter your email and password to open your account.";
+  $("authError").style.display="none";
+  $("authPassword").setAttribute("autocomplete",mode==="signup"?"new-password":"current-password");
+  $("authConfirm").required=mode==="signup";
+}
+function authError(msg){$("authError").textContent=msg;$("authError").style.display="block"}
+$("authForm").onsubmit=async e=>{
+  e.preventDefault();
+  let email=$("authEmail").value.trim().toLowerCase(),pass=$("authPassword").value;
+  try{
+    if(!firebaseReady){authError("Firebase is not connected. Check the Firebase Web App API key.");return}
+    $("authSubmit").disabled=true;
+    $("authError").style.display="none";
+
+    if(authMode==="signup"){
+      let confirm=$("authConfirm").value;
+      if(pass.length<6){authError("Password must be at least 6 characters.");return}
+      if(pass!==confirm){authError("Passwords do not match.");return}
+      await auth.createUserWithEmailAndPassword(email,pass);
+      toast("Account created ✓");
+    }else{
+      await auth.signInWithEmailAndPassword(email,pass);
+    }
+  }catch(e){
+    let m =
+      e.code==="auth/invalid-email" ? "Enter a valid email address." :
+      e.code==="auth/email-already-in-use" ? "This email already has an account. Please Login." :
+      e.code==="auth/weak-password" ? "Password must be at least 6 characters." :
+      e.code==="auth/invalid-credential" ? "Email or password is incorrect." :
+      e.code==="auth/user-not-found" ? "Account not found. Please Create Account first." :
+      e.code==="auth/wrong-password" ? "Email or password is incorrect." :
+      e.code==="auth/user-disabled" ? "This account has been disabled." :
+      e.code==="auth/too-many-requests" ? "Too many attempts. Try again later." :
+      e.message || "Authentication failed.";
+    authError(m);
+  }finally{$("authSubmit").disabled=false}
+};
+async function logout(){try{await auth.signOut()}catch(e){console.error(e)}}
+auth.onAuthStateChanged(async u=>{
+  if(!u){
+    user=null;
+    $("authScreen").style.display="grid";
+    $("userEmail").style.display="none";
+    setStatus(false,"Login required");
+    return;
+  }
+  user=u;
+  $("authScreen").style.display="none";
+  $("userEmail").textContent=u.email||"User";
+  $("userEmail").style.display="inline-block";
+  try{
+    let r=await refs(),[a,b,c]=await Promise.all([r.tx.get(),r.del.get(),r.settings.get()]);
+    tx=a.docs.map(d=>({id:d.id,...d.data()}));
+    deleted=b.docs.map(d=>({id:d.id,...d.data()}));
+    budget=c.exists?Number(c.data().budget||0):0;
+    localSave();
+    setStatus(true,"Firebase Connected");
+  }catch(e){
+    console.error(e);
+    localLoad();
+    setStatus(false,"Firebase Rules / Setup error");
+  }
+  renderAll();
+});
+$("incomeForm").onsubmit=e=>add(e,"income");$("expenseForm").onsubmit=e=>add(e,"expense");
+async function add(e,type){e.preventDefault();let cat=selected(type==="income"?"incomeCats":"expenseCats"),amount=Number($(type+"Amount").value),date=$(type+"Date").value,note=$(type+"Note").value.trim();if(!cat){toast("Select a category");return}if(!amount||amount<0){toast("Enter a valid amount");return}let t={id:editId||String(Date.now())+"_"+Math.random().toString(36).slice(2,7),type,category:cat,amount,date,note,createdAt:new Date().toISOString()};if(editId){tx=tx.map(x=>String(x.id)===String(editId)?t:x);editId=null}else tx.unshift(t);if(!user){toast("Please login first");return}localSave();try{let r=await refs();await r.tx.doc(String(t.id)).set(t)}catch(e){toast("Saved locally; Firebase failed")}e.target.reset();$("incomeDate").value=today();$("expenseDate").value=today();document.querySelectorAll(".cat.selected").forEach(x=>x.classList.remove("selected"));renderAll();toast(type==="income"?"Income saved ✓":"Expense saved ✓");page("dashboard",document.querySelector(".nav button"))}
+async function removeTx(id){let t=tx.find(x=>String(x.id)===String(id));if(!t||!confirm("Move this transaction to Recycle Bin?"))return;t.deletedAt=new Date().toISOString();tx=tx.filter(x=>String(x.id)!==String(id));deleted.unshift(t);localSave();if(user)try{let r=await refs();await r.tx.doc(String(t.id)).delete();await r.del.doc(String(t.id)).set(t)}catch(e){}renderAll();toast("Moved to Recycle Bin")}
+function editTx(id){let t=tx.find(x=>String(x.id)===String(id));if(!t)return;editId=t.id;page(t.type,document.querySelectorAll(".nav button")[t.type==="income"?1:2]);$(t.type+"Amount").value=t.amount;$(t.type+"Date").value=t.date;$(t.type+"Note").value=t.note||"";let grid=t.type==="income"?"incomeCats":"expenseCats";$(grid).querySelectorAll(".cat").forEach(b=>b.classList.toggle("selected",b.dataset.cat===t.category));toast("Edit mode enabled")}
+async function restore(id){let t=deleted.find(x=>String(x.id)===String(id));if(!t)return;delete t.deletedAt;deleted=deleted.filter(x=>String(x.id)!==String(id));tx.unshift(t);localSave();if(user)try{let r=await refs();await r.del.doc(String(id)).delete();await r.tx.doc(String(id)).set(t)}catch(e){}renderAll();toast("Transaction restored")}
+async function permanent(id){let t=deleted.find(x=>String(x.id)===String(id));if(!t||!confirm("Permanently delete this item?"))return;deleted=deleted.filter(x=>String(x.id)!==String(id));localSave();if(user)try{let r=await refs();await r.del.doc(String(id)).delete()}catch(e){}renderAll()}
+async function emptyBin(){if(!deleted.length)return toast("Recycle Bin is empty");if(!confirm("Delete all recycle bin items permanently?"))return;if(user)try{let r=await refs(),batch=db.batch();deleted.forEach(t=>batch.delete(r.del.doc(String(t.id))));await batch.commit()}catch(e){}deleted=[];localSave();renderAll();toast("Recycle Bin emptied")}
+$("budgetForm").onsubmit=async e=>{e.preventDefault();budget=Number($("budgetInput").value||0);localSave();if(user)try{let r=await refs();await r.settings.set({budget},{merge:true})}catch(e){}renderAll();toast("Budget updated ✓")};
+function renderHistory(){let q=($("search").value||"").toLowerCase(),type=$("filterType").value,cat=$("filterCat").value,date=$("filterDate").value;let list=tx.filter(t=>(!q||(t.category+" "+t.note+" "+t.type+" "+t.amount).toLowerCase().includes(q))&&(type==="all"||t.type===type)&&(cat==="all"||t.category===cat)&&(!date||t.date===date));$("historyBody").innerHTML=list.length?list.map(t=>`<tr><td>${esc(t.date)}</td><td class="${t.type==="income"?"income-text":"expense-text"}">${t.type==="income"?"Income":"Expense"}</td><td>${esc(t.category)}</td><td class="amount">${money(t.amount)}</td><td>${esc(t.note||"-")}</td><td><button class="secondary" onclick="editTx('${esc(t.id)}')">Edit</button> <button class="danger" onclick="removeTx('${esc(t.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No transactions found.</td></tr>`}
+function renderDeleted(){$("deletedBody").innerHTML=deleted.length?deleted.map(t=>`<tr><td>${esc((t.deletedAt||"").slice(0,16).replace("T"," "))}</td><td>${esc(t.date)}</td><td>${esc(t.type)}</td><td>${esc(t.category)}</td><td class="amount">${money(t.amount)}</td><td><button class="secondary" onclick="restore('${esc(t.id)}')">Restore</button> <button class="danger" onclick="permanent('${esc(t.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="6" class="empty">Recycle Bin is empty.</td></tr>`}
+function totals(){let income=tx.filter(t=>t.type==="income").reduce((s,t)=>s+Number(t.amount),0),expense=tx.filter(t=>t.type==="expense").reduce((s,t)=>s+Number(t.amount),0);return{income,expense,balance:income-expense}}
+function renderDashboard(){let z=totals(),m=new Date().toISOString().slice(0,7),me=tx.filter(t=>t.type==="expense"&&String(t.date).startsWith(m)).reduce((s,t)=>s+Number(t.amount),0);$("incomeTotal").textContent=money(z.income);$("expenseTotal").textContent=money(z.expense);$("balanceTotal").textContent=money(z.balance);$("monthExpense").textContent=money(me);let r=tx.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,6);$("recent").innerHTML=r.length?`<div class="table-wrap"><table><thead><tr><th>DATE</th><th>CATEGORY</th><th>AMOUNT</th></tr></thead><tbody>${r.map(t=>`<tr><td>${esc(t.date)}</td><td>${esc(t.category)}</td><td class="${t.type==="income"?"income-text":"expense-text"}">${t.type==="income"?"+":"−"}${money(t.amount)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">No transactions yet.</div>`;let pct=budget?Math.min(100,me/budget*100):0;$("budgetDash").innerHTML=budget?`<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px"><b>${money(me)}</b><span>${money(budget)}</span></div><div class="progress"><i style="width:${pct}%"></i></div><p style="font-size:12px;color:var(--muted)">${me>budget?"⚠ Budget exceeded by "+money(me-budget):money(budget-me)+" remaining"}</p>`:`<p class="empty">No budget set. Open Budget to create one.</p>`;let cats={};tx.filter(t=>t.type==="expense").forEach(t=>cats[t.category]=(cats[t.category]||0)+Number(t.amount));if(dashChart)dashChart.destroy();dashChart=new Chart($("dashChart"),{type:"doughnut",data:{labels:Object.keys(cats),datasets:[{data:Object.values(cats)}]},options:{responsive:true,plugins:{legend:{position:"bottom",labels:{font:{size:10}}}}}})}
+function renderReports(){let z=totals();$("rIncome").textContent=money(z.income);$("rExpense").textContent=money(z.expense);$("savingRate").textContent=(z.income?Math.max(0,(z.balance/z.income)*100).toFixed(1):0)+"%";$("txCount").textContent=tx.length;if(barChart)barChart.destroy();barChart=new Chart($("barChart"),{type:"bar",data:{labels:["Income","Expense","Balance"],datasets:[{data:[z.income,z.expense,z.balance]}]},options:{responsive:true,plugins:{legend:{display:false}}}});let c={};tx.filter(t=>t.type==="expense").forEach(t=>c[t.category]=(c[t.category]||0)+Number(t.amount));if(pieChart)pieChart.destroy();pieChart=new Chart($("pieChart"),{type:"pie",data:{labels:Object.keys(c),datasets:[{data:Object.values(c)}]},options:{responsive:true,plugins:{legend:{position:"bottom"}}}})}
+function renderAll(){let cats=[...new Set(tx.map(t=>t.category))].sort(),old=$("filterCat").value;$("filterCat").innerHTML='<option value="all">All categories</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join("");if(cats.includes(old))$("filterCat").value=old;renderDashboard();renderHistory();renderDeleted();$("budgetInput").value=budget||""}
+function exportBackup(){let blob=new Blob([JSON.stringify({transactions:tx,deleted,budget,exportedAt:new Date().toISOString()},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="expense-pro-backup-"+today()+".json";a.click();URL.revokeObjectURL(a.href);toast("Backup downloaded")}
+async function importBackup(e){let f=e.target.files[0];if(!f)return;try{let d=JSON.parse(await f.text());if(!Array.isArray(d.transactions))throw 0;tx=d.transactions;deleted=Array.isArray(d.deleted)?d.deleted:[];budget=Number(d.budget||0);localSave();if(user){let r=await refs(),batch=db.batch();tx.forEach(t=>batch.set(r.tx.doc(String(t.id)),t));deleted.forEach(t=>batch.set(r.del.doc(String(t.id)),t));batch.set(r.settings,{budget},{merge:true});await batch.commit()}renderAll();toast("Backup restored ✓")}catch(e){toast("Invalid backup file")}e.target.value=""}
+function showSummary(){let z=totals(),m=new Date().toISOString().slice(0,7),me=tx.filter(t=>t.type==="expense"&&String(t.date).startsWith(m)).reduce((s,t)=>s+Number(t.amount),0);$("modalTitle").textContent="Financial Summary";$("modalBody").innerHTML=`<div class="kpi"><div class="mini"><small>Total income</small><b class="income-text">${money(z.income)}</b></div><div class="mini"><small>Total expense</small><b class="expense-text">${money(z.expense)}</b></div><div class="mini"><small>Balance</small><b>${money(z.balance)}</b></div><div class="mini"><small>This month</small><b>${money(me)}</b></div></div>`;$("modal").classList.add("show")}
+function closeModal(){$("modal").classList.remove("show")}
+localLoad();renderAll();showAuth("login");
+</script>
+</body>
+</html>
