@@ -1,0 +1,329 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --text: #222;
+    --muted: #777;
+    --primary: #4f46e5;
+    --border: #e5e7eb;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+
+/* APP */
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 250px;
+    background: #111827;
+    color: white;
+    padding: 25px 15px;
+
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    padding: 10px;
+    margin-bottom: 30px;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar nav a {
+    text-decoration: none;
+    color: #d1d5db;
+    padding: 13px;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background: var(--primary);
+    color: white;
+}
+
+
+.theme-btn {
+    margin-top: 30px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+
+/* MAIN */
+
+.main {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    padding: 30px;
+}
+
+
+/* HEADER */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    font-size: 32px;
+}
+
+.header p {
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+.profile {
+    background: var(--card);
+    padding: 12px 18px;
+    border-radius: 10px;
+}
+
+
+/* CARDS */
+
+.cards {
+    display: grid;
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 20px;
+}
+
+
+.card {
+    background: var(--card);
+    padding: 22px;
+    border-radius: 15px;
+
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.05);
+}
+
+.card-icon {
+    font-size: 30px;
+}
+
+.card p {
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.card h2 {
+    font-size: 25px;
+}
+
+
+/* SECTION */
+
+.section {
+    margin-top: 30px;
+}
+
+.section-header {
+    margin-bottom: 15px;
+}
+
+
+/* QUICK ACTIONS */
+
+.quick-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.quick-actions button {
+    border: none;
+    background: var(--primary);
+    color: white;
+
+    padding: 13px 20px;
+
+    border-radius: 9px;
+
+    cursor: pointer;
+
+    font-size: 15px;
+}
+
+.quick-actions button:hover {
+    opacity: 0.9;
+}
+
+
+/* TRANSACTIONS */
+
+.transactions {
+    background: var(--card);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.transaction {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 18px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.transaction:last-child {
+    border-bottom: none;
+}
+
+.transaction-title {
+    font-weight: bold;
+}
+
+.transaction-date {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.income {
+    color: #16a34a;
+}
+
+.expense {
+    color: #dc2626;
+}
+
+.empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+}
+
+
+/* SUMMARY */
+
+.summary-box {
+    background: var(--card);
+    padding: 25px;
+    border-radius: 15px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+
+    padding: 15px 0;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.summary-row.total {
+    font-size: 18px;
+    border-bottom: none;
+}
+
+
+/* FOOTER */
+
+footer {
+    text-align: center;
+    margin-top: 50px;
+    color: var(--muted);
+}
+
+
+/* DARK MODE */
+
+body.dark {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --border: #334155;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 900px) {
+
+    .cards {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
+
+    .app {
+        display: block;
+    }
+
+    .main {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .sidebar nav {
+        display: grid;
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
