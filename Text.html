@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Expense Pro - Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            💰 <span>Expense Pro</span>
+        </div>
+
+        <nav>
+
+            <a href="index.html" class="active">
+                🏠 Dashboard
+            </a>
+
+            <a href="#">
+                💵 Add Income
+            </a>
+
+            <a href="#">
+                💸 Add Expense
+            </a>
+
+            <a href="#">
+                📊 Analytics
+            </a>
+
+            <a href="#">
+                💳 Transactions
+            </a>
+
+            <a href="#">
+                ♻️ Recycle Bin
+            </a>
+
+        </nav>
+
+        <button id="themeBtn" class="theme-btn">
+            🌙 Dark Mode
+        </button>
+
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- Header -->
+        <header class="header">
+
+            <div>
+                <h1>Dashboard</h1>
+                <p>Welcome to Expense Pro</p>
+            </div>
+
+            <div class="profile">
+                👤 User
+            </div>
+
+        </header>
+
+
+        <!-- Summary Cards -->
+        <section class="cards">
+
+            <div class="card income-card">
+
+                <div class="card-icon">
+                    💵
+                </div>
+
+                <div>
+                    <p>Total Income</p>
+                    <h2 id="totalIncome">₹0</h2>
+                </div>
+
+            </div>
+
+
+            <div class="card expense-card">
+
+                <div class="card-icon">
+                    💸
+                </div>
+
+                <div>
+                    <p>Total Expense</p>
+                    <h2 id="totalExpense">₹0</h2>
+                </div>
+
+            </div>
+
+
+            <div class="card balance-card">
+
+                <div class="card-icon">
+                    💰
+                </div>
+
+                <div>
+                    <p>Balance</p>
+                    <h2 id="balance">₹0</h2>
+                </div>
+
+            </div>
+
+
+            <div class="card transaction-card">
+
+                <div class="card-icon">
+                    📋
+                </div>
+
+                <div>
+                    <p>Transactions</p>
+                    <h2 id="transactionCount">0</h2>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Quick Actions -->
+        <section class="section">
+
+            <div class="section-header">
+
+                <h2>Quick Actions</h2>
+
+            </div>
+
+            <div class="quick-actions">
+
+                <button onclick="addIncome()">
+                    ➕ Add Income
+                </button>
+
+                <button onclick="addExpense()">
+                    ➖ Add Expense
+                </button>
+
+                <button onclick="showTransactions()">
+                    📋 Transactions
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- Recent Transactions -->
+        <section class="section">
+
+            <div class="section-header">
+
+                <h2>Recent Transactions</h2>
+
+            </div>
+
+            <div id="recentTransactions"
+                 class="transactions">
+
+                <div class="empty">
+                    No transactions found.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Summary -->
+        <section class="section">
+
+            <div class="summary-box">
+
+                <h2>Financial Summary</h2>
+
+                <div class="summary-row">
+
+                    <span>Income</span>
+
+                    <strong id="summaryIncome">
+                        ₹0
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-row">
+
+                    <span>Expense</span>
+
+                    <strong id="summaryExpense">
+                        ₹0
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-row total">
+
+                    <span>Available Balance</span>
+
+                    <strong id="summaryBalance">
+                        ₹0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+
+            © 2026 Expense Pro
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+                                   </html>
