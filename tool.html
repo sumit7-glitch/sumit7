@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Expense Pro - Tools</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+:root{
+    --sidebar:#0c1225;
+    --sidebar2:#151d36;
+    --bg:#f5f6fa;
+    --card:#ffffff;
+    --text:#202333;
+    --muted:#8a8d9b;
+    --border:#e8e9ef;
+    --purple:#6437ed;
+    --purple2:#7c4dff;
+    --green:#15956a;
+}
+
+body{
+    font-family:Georgia,"Times New Roman",serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+}
+
+
+/* =========================
+   APP
+========================= */
+
+.app{
+    min-height:100vh;
+    display:flex;
+}
+
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+    width:185px;
+    min-height:100vh;
+    background:linear-gradient(
+        180deg,
+        var(--sidebar),
+        var(--sidebar2)
+    );
+    color:white;
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    padding:16px 10px;
+    z-index:10;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:3px 7px 25px;
+}
+
+.logo-icon{
+    width:32px;
+    height:32px;
+    border-radius:9px;
+    background:linear-gradient(
+        135deg,
+        #6c36ee,
+        #4720d5
+    );
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:17px;
+}
+
+.logo-text{
+    line-height:1.05;
+}
+
+.logo-title{
+    font-size:13px;
+    font-weight:bold;
+}
+
+.logo-sub{
+    font-family:Arial,sans-serif;
+    font-size:7px;
+    color:#9ea5bb;
+    margin-top:3px;
+}
+
+
+/* NAV */
+
+.nav{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
+.nav a{
+    text-decoration:none;
+    color:#aeb4c6;
+    padding:8px 8px;
+    border-radius:7px;
+    font-family:Arial,sans-serif;
+    font-size:11px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:.2s;
+}
+
+.nav a:hover{
+    background:#202944;
+    color:white;
+}
+
+.nav a.active{
+    background:linear-gradient(
+        90deg,
+        #211c57,
+        #141a31
+    );
+    color:white;
+    border-left:2px solid #7652ff;
+}
+
+.nav-icon{
+    width:12px;
+    text-align:center;
+}
+
+
+/* SIDEBAR BOTTOM */
+
+.sidebar-bottom{
+    position:absolute;
+    left:10px;
+    right:10px;
+    bottom:12px;
+    padding-top:10px;
+    border-top:1px solid rgba(255,255,255,.06);
+    color:#71788f;
+    font-family:Arial,sans-serif;
+    font-size:7px;
+    line-height:1.5;
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+.main{
+    margin-left:185px;
+    width:calc(100% - 185px);
+    min-height:100vh;
+    padding:18px 20px;
+}
+
+
+/* HEADER */
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:18px;
+}
+
+.page-title h1{
+    font-size:21px;
+    line-height:1;
+    margin-bottom:5px;
+}
+
+.page-title p{
+    color:#999daa;
+    font-family:Arial,sans-serif;
+    font-size:9px;
+}
+
+
+/* USER AREA */
+
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.email{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:7px 10px;
+    font-family:Arial,sans-serif;
+    font-size:8px;
+    color:#777b88;
+}
+
+.logout{
+    background:white;
+    border:1px solid #efdfe2;
+    color:#b5787e;
+    border-radius:15px;
+    padding:7px 10px;
+    font-family:Arial,sans-serif;
+    font-size:8px;
+    cursor:pointer;
+}
+
+.firebase-status{
+    background:#ecfbf5;
+    color:#16815e;
+    border:1px solid #d4f2e5;
+    border-radius:15px;
+    padding:7px 10px;
+    font-family:Arial,sans-serif;
+    font-size:8px;
+}
+
+
+/* =========================
+   CONTENT
+========================= */
+
+.section{
+    background:var(--card);
+    border:1px solid #ececf1;
+    border-radius:13px;
+    padding:14px;
+    margin-bottom:15px;
+    box-shadow:
+        0 7px 25px rgba(31,35,54,.05);
+}
+
+.section-title{
+    font-size:13px;
+    font-weight:bold;
+    margin-bottom:12px;
+}
+
+.section-title::first-letter{
+    color:#222;
+}
+
+
+/* =========================
+   TOOL CARDS
+========================= */
+
+.tools{
+    display:grid;
+    grid-template-columns:
+        repeat(3,1fr);
+    gap:8px;
+}
+
+.tool-card{
+    min-height:75px;
+    border:1px solid #e9eaf0;
+    border-radius:10px;
+    background:white;
+    padding:10px;
+    cursor:pointer;
+    text-align:left;
+    transition:.2s;
+    font-family:Georgia,"Times New Roman",serif;
+}
+
+.tool-card:hover{
+    transform:translateY(-2px);
+    border-color:#cfc5ff;
+    box-shadow:
+        0 5px 18px rgba(100,55,237,.08);
+}
+
+.tool-icon{
+    font-size:15px;
+    margin-bottom:6px;
+}
+
+.tool-title{
+    font-size:10px;
+    font-weight:bold;
+    margin-bottom:3px;
+}
+
+.tool-desc{
+    font-family:Arial,sans-serif;
+    color:#989ba5;
+    font-size:8px;
+}
+
+
+/* =========================
+   DATA SYNC
+========================= */
+
+.sync-text{
+    color:#676b78;
+    font-family:Arial,sans-serif;
+    font-size:9px;
+    line-height:1.6;
+    margin-bottom:12px;
+}
+
+.reconnect{
+    background:white;
+    border:1px solid #e1e2e8;
+    border-radius:8px;
+    padding:8px 11px;
+    font-family:Arial,sans-serif;
+    font-size:9px;
+    cursor:pointer;
+}
+
+.reconnect:hover{
+    background:#f7f5ff;
+    border-color:#cfc5ff;
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(10,15,30,.55);
+    z-index:100;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:min(420px,100%);
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+
+.modal-box h2{
+    font-size:18px;
+    margin-bottom:15px;
+}
+
+.close{
+    float:right;
+    border:0;
+    background:#f2f2f5;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    cursor:pointer;
+}
+
+.summary-item{
+    display:flex;
+    justify-content:space-between;
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+    font-family:Arial,sans-serif;
+    font-size:12px;
+}
+
+.summary-item strong{
+    color:#222;
+}
+
+.summary-balance{
+    font-size:16px;
+}
+
+
+/* TOAST */
+
+.toast{
+    position:fixed;
+    bottom:25px;
+    right:25px;
+    background:#161d31;
+    color:white;
+    padding:12px 16px;
+    border-radius:9px;
+    font-family:Arial,sans-serif;
+    font-size:11px;
+    opacity:0;
+    transform:translateY(15px);
+    pointer-events:none;
+    transition:.25s;
+    z-index:200;
+}
+
+.toast.show{
+    opacity:1;
+    transform:translateY(0);
+}
+
+
+/* FOOTER */
+
+footer{
+    text-align:center;
+    color:#a6a8b2;
+    font-size:8px;
+    margin-top:17px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:700px){
+
+    .app{
+        display:block;
+    }
+
+    .sidebar{
+        position:relative;
+        width:100%;
+        min-height:auto;
+        padding:10px;
+    }
+
+    .logo{
+        padding-bottom:10px;
+    }
+
+    .nav{
+        display:grid;
+        grid-template-columns:
+            repeat(4,1fr);
+        gap:4px;
+    }
+
+    .nav a{
+        font-size:9px;
+        padding:7px 4px;
+        justify-content:center;
+        flex-direction:column;
+        gap:3px;
+        text-align:center;
+    }
+
+    .sidebar-bottom{
+        display:none;
+    }
+
+    .main{
+        margin-left:0;
+        width:100%;
+        padding:15px 10px;
+    }
+
+    .header{
+        gap:12px;
+        flex-direction:column;
+    }
+
+    .header-right{
+        width:100%;
+        flex-wrap:wrap;
+    }
+
+    .tools{
+        grid-template-columns:1fr;
+    }
+
+}
+
+
+/* VERY SMALL PHONE */
+
+@media(max-width:400px){
+
+    .nav{
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+    .header-right{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+    }
+
+    .firebase-status{
+        text-align:center;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                ₹
+            </div>
+
+            <div class="logo-text">
+
+                <div class="logo-title">
+                    Expense Pro
+                </div>
+
+                <div class="logo-sub">
+                    Smart money manager
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <nav class="nav">
+
+            <a href="index.html">
+                <span class="nav-icon">⌂</span>
+                Dashboard
+            </a>
+
+            <a href="add-income.html">
+                <span class="nav-icon">＋</span>
+                Add Income
+            </a>
+
+            <a href="add-expense.html">
+                <span class="nav-icon">−</span>
+                Add Expense
+            </a>
+
+            <a href="analytics.html">
+                <span class="nav-icon">◉</span>
+                Analytics
+            </a>
+
+            <a href="budget.html">
+                <span class="nav-icon">◉</span>
+                Budget
+            </a>
+
+            <a href="transactions.html">
+                <span class="nav-icon">☷</span>
+                Transactions
+            </a>
+
+            <a href="recycle-bin.html">
+                <span class="nav-icon">♻</span>
+                Recycle Bin
+            </a>
+
+            <a href="tools.html" class="active">
+                <span class="nav-icon">✦</span>
+                Tools
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            ☁ Cloud sync enabled<br>
+            Local backup enabled
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- HEADER -->
+
+        <header class="header">
+
+            <div class="page-title">
+
+                <h1>Tools</h1>
+
+                <p>
+                    Your personal finance command center
+                </p>
+
+            </div>
+
+
+            <div class="header-right">
+
+                <div class="email" id="userEmail">
+                    user@example.com
+                </div>
+
+                <button
+                    class="logout"
+                    onclick="logoutUser()">
+
+                    Logout
+
+                </button>
+
+                <div
+                    class="firebase-status"
+                    id="firebaseStatus">
+
+                    ● Firebase Connected
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ================= SMART TOOLS ================= -->
+
+        <section class="section">
+
+            <div class="section-title">
+                ✦ Smart Tools
+            </div>
+
+
+            <div class="tools">
+
+
+                <!-- SUMMARY -->
+
+                <button
+                    class="tool-card"
+                    onclick="showFinancialSummary()">
+
+                    <div class="tool-icon">
+                        📋
+                    </div>
+
+                    <div class="tool-title">
+                        Financial Summary
+                    </div>
+
+                    <div class="tool-desc">
+                        Quick overview
+                    </div>
+
+                </button>
+
+
+
+                <!-- BACKUP -->
+
+                <button
+                    class="tool-card"
+                    onclick="backupData()">
+
+                    <div class="tool-icon">
+                        ↓
+                    </div>
+
+                    <div class="tool-title">
+                        Backup Data
+                    </div>
+
+                    <div class="tool-desc">
+                        Download JSON
+                    </div>
+
+                </button>
+
+
+
+                <!-- RESTORE -->
+
+                <button
+                    class="tool-card"
+                    onclick="document.getElementById('restoreFile').click()">
+
+                    <div class="tool-icon">
+                        ↑
+                    </div>
+
+                    <div class="tool-title">
+                        Restore Backup
+                    </div>
+
+                    <div class="tool-desc">
+                        Import JSON
+                    </div>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================= DATA & SYNC ================= -->
+
+        <section class="section">
+
+            <div class="section-title">
+                ☁ Data &amp; Sync
+            </div>
+
+
+            <div class="sync-text">
+
+                Your browser keeps a local backup.
+                When Firebase is connected,
+                transactions are also stored under
+                your private anonymous user account
+                in Firestore.
+
+            </div>
+
+
+            <button
+                class="reconnect"
+                onclick="reconnectFirebase()">
+
+                ↻ Reconnect Firebase
+
+            </button>
+
+        </section>
+
+
+
+        <footer>
+
+            Expense Pro • Premium UI • Firebase + Local Backup
+
+        </footer>
+
+
+    </main>
+
+</div>
+
+
+
+<!-- ================= FILE INPUT ================= -->
+
+<input
+    type="file"
+    id="restoreFile"
+    accept=".json,application/json"
+    style="display:none"
+    onchange="restoreData(event)"
+>
+
+
+
+<!-- ================= SUMMARY MODAL ================= -->
+
+<div
+    class="modal"
+    id="summaryModal"
+    onclick="closeModalOutside(event)">
+
+    <div class="modal-box">
+
+        <button
+            class="close"
+            onclick="closeSummary()">
+
+            ×
+
+        </button>
+
+        <h2>
+            Financial Summary
+        </h2>
+
+
+        <div class="summary-item">
+
+            <span>
+                Total Income
+            </span>
+
+            <strong id="sumIncome">
+                ₹0
+            </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+            <span>
+                Total Expense
+            </span>
+
+            <strong id="sumExpense">
+                ₹0
+            </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+            <span>
+                Transactions
+            </span>
+
+            <strong id="sumTransactions">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+            <span>
+                Balance
+            </span>
+
+            <strong
+                class="summary-balance"
+                id="sumBalance">
+
+                ₹0
+
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ================= TOAST ================= -->
+
+<div
+    class="toast"
+    id="toast">
+
+    Done
+
+</div>
+
+
+
+<script>
+
+/* ============================================
+   EXPENSE PRO - TOOLS
+   GitHub Pages Compatible
+============================================ */
+
+
+/* ============================================
+   STORAGE KEY
+============================================ */
+
+const STORAGE_KEY =
+    "expenseProTransactions";
+
+
+/* ============================================
+   GET TRANSACTIONS
+============================================ */
+
+function getTransactions(){
+
+    const data =
+        localStorage.getItem(STORAGE_KEY);
+
+    if(!data){
+
+        return [];
+
+    }
+
+    try{
+
+        const parsed =
+            JSON.parse(data);
+
+        return Array.isArray(parsed)
+            ? parsed
+            : [];
+
+    }catch(error){
+
+        console.error(error);
+
+        return [];
+
+    }
+
+}
+
+
+/* ============================================
+   FORMAT MONEY
+============================================ */
+
+function money(amount){
+
+    return "₹" +
+        Number(amount || 0)
+        .toLocaleString("en-IN",{
+            minimumFractionDigits:2,
+            maximumFractionDigits:2
+        });
+
+}
+
+
+/* ============================================
+   FINANCIAL SUMMARY
+============================================ */
+
+function showFinancialSummary(){
+
+    const transactions =
+        getTransactions();
+
+    let income = 0;
+    let expense = 0;
+
+
+    transactions.forEach(item => {
+
+        const amount =
+            Number(item.amount) || 0;
+
+
+        if(
+            item.type === "income"
+        ){
+
+            income += amount;
+
+        }
+
+
+        if(
+            item.type === "expense"
+        ){
+
+            expense += amount;
+
+        }
+
+    });
+
+
+    const balance =
+        income - expense;
+
+
+    document.getElementById(
+        "sumIncome"
+    ).textContent = money(income);
+
+
+    document.getElementById(
+        "sumExpense"
+    ).textContent = money(expense);
+
+
+    document.getElementById(
+        "sumTransactions"
+    ).textContent =
+        transactions.length;
+
+
+    document.getElementById(
+        "sumBalance"
+    ).textContent =
+        money(balance);
+
+
+    document.getElementById(
+        "summaryModal"
+    ).classList.add("show");
+
+}
+
+
+/* ============================================
+   CLOSE SUMMARY
+============================================ */
+
+function closeSummary(){
+
+    document.getElementById(
+        "summaryModal"
+    ).classList.remove("show");
+
+}
+
+
+function closeModalOutside(event){
+
+    if(
+        event.target.id ===
+        "summaryModal"
+    ){
+
+        closeSummary();
+
+    }
+
+}
+
+
+/* ============================================
+   BACKUP DATA
+============================================ */
+
+function backupData(){
+
+    const transactions =
+        getTransactions();
+
+
+    const backup = {
+
+        app:
+            "Expense Pro",
+
+        version:
+            "1.0",
+
+        createdAt:
+            new Date().toISOString(),
+
+        transactions:
+            transactions
+
+    };
+
+
+    const json =
+        JSON.stringify(
+            backup,
+            null,
+            2
+        );
+
+
+    const blob =
+        new Blob(
+            [json],
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href = url;
+
+
+    const date =
+        new Date()
+        .toISOString()
+        .slice(0,10);
+
+
+    link.download =
+        "expense-pro-backup-" +
+        date +
+        ".json";
+
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+
+    showToast(
+        "Backup downloaded successfully"
+    );
+
+}
+
+
+/* ============================================
+   RESTORE BACKUP
+============================================ */
+
+function restoreData(event){
+
+    const file =
+        event.target.files[0];
+
+
+    if(!file){
+
+        return;
+
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(e){
+
+            try{
+
+                const data =
+                    JSON.parse(
+                        e.target.result
+                    );
+
+
+                let transactions = [];
+
+
+                /* New backup format */
+
+                if(
+                    Array.isArray(
+                        data.transactions
+                    )
+                ){
+
+                    transactions =
+                        data.transactions;
+
+                }
+
+                /* Direct array */
+
+                else if(
+                    Array.isArray(data)
+                ){
+
+                    transactions =
+                        data;
+
+                }
+
+                else{
+
+                    throw new Error(
+                        "Invalid backup file"
+                    );
+
+                }
+
+
+                const confirmRestore =
+                    confirm(
+                        "Restore " +
+                        transactions.length +
+                        " transactions?"
+                    );
+
+
+                if(!confirmRestore){
+
+                    return;
+
+                }
+
+
+                localStorage.setItem(
+                    STORAGE_KEY,
+                    JSON.stringify(
+                        transactions
+                    )
+                );
+
+
+                showToast(
+                    "Backup restored successfully"
+                );
+
+
+                setTimeout(
+ 
